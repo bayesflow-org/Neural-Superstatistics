@@ -5,7 +5,7 @@ from custom_network import OneDimensionalAmortizer
 from configuration import default_settings
 
 
-class CoalMiningExperiment:
+class NeuralCoalMiningExperiment:
     def __init__(self, model, config=default_settings):
         """Creates an instance of the model with given configuration. When used in a BayesFlow pipeline,
         only the attribute ``self.generator`` and the method ``self.configure`` should be used.
