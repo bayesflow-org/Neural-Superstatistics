@@ -1,0 +1,10 @@
+# Read the docs
+
+# run: conda env create --file environment.yaml
+
+name: bf
+dependencies:
+  - python==3.11
+  - pip
+  - pip:
+    - .[docs]
