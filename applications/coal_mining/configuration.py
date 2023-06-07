@@ -5,6 +5,7 @@ default_settings = {
     'hidden_units_global': 256,
     'trainer': {
         'checkpoint_path': '../checkpoints/coal_mining',
-        'max_to_keep': 1
+        'max_to_keep': 1,
+        'memory': False
     }
 }
