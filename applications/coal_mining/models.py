@@ -25,13 +25,13 @@ class PoissonRandomWalk:
             rng = np.random.default_rng()
         self._rng = rng
 
-       # Create prior wrapper
+        # Create prior wrapper
         self.prior = bf.simulation.TwoLevelPrior(
             hyper_prior_fun=partial(sample_scale, rng=self._rng),
             local_prior_fun=partial(sample_random_walk, rng=self._rng),
         )
 
-        # Create simulator wrapper 
+        # Create simulator wrapper
         self.likelihood = bf.simulation.Simulator(
             simulator_fun=partial(sample_poisson_process, rng=self._rng),
         )
@@ -62,10 +62,11 @@ class PoissonRandomWalk:
         return self.generator(batch_size, **kwargs)
 
     def configure(self, raw_dict):
-        """Configures the output of self.generator for BayesFlow.
+        """Configures the output of self.generator for a BayesFlow pipeline.
 
         1. Converts float64 to float32 (for TensorFlow)
-        2. Log-transforms parameters and observations
+        2. Appends a trailing dimensions of 1, since model is 1D
+        3. Log-transforms parameters and observations
 
         Parameters:
         -----------
@@ -88,7 +89,6 @@ class PoissonRandomWalk:
         out_dict = dict(
             local_parameters=np.log1p(rates),
             hyper_parameters=np.log1p(scales),
-            summary_conditions=np.log1p(observations)
+            summary_conditions=np.log1p(observations),
         )
         return out_dict
-    

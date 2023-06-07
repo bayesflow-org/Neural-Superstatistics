@@ -6,7 +6,6 @@ from configuration import default_settings
 
 
 class CoalMiningExperiment:
-
     def __init__(self, model, config=default_settings):
         """Creates an instance of the model with given configuration. When used in a BayesFlow pipeline,
         only the attribute ``self.generator`` and the method ``self.configure`` should be used.
@@ -31,15 +30,25 @@ class CoalMiningExperiment:
 
         # Two-level summary network -> reduce 3D into 3D and 2D
         # for local and global amortizer, respectively
-        self.summary_network = bf.networks.HierarchicalNetwork([
-            tf.keras.Sequential([tf.keras.layers.LSTM(config['lstm1_hidden_units'], return_sequences=True)]),
-            tf.keras.Sequential([tf.keras.layers.LSTM(config['lstm2_hidden_units'])])
-        ])
+        self.summary_network = bf.networks.HierarchicalNetwork(
+            [
+                tf.keras.Sequential(
+                    [
+                        tf.keras.layers.LSTM(
+                            config["lstm1_hidden_units"], return_sequences=True
+                        )
+                    ]
+                ),
+                tf.keras.Sequential(
+                    [tf.keras.layers.LSTM(config["lstm2_hidden_units"])]
+                ),
+            ]
+        )
 
         # Custom amortizer for one-dimensional inference
         self.amortizer = OneDimensionalAmortizer(
-            hidden_units_local=config['hidden_units_local'],
-            hidden_units_global=config['hidden_units_global'],
+            hidden_units_local=config["hidden_units_local"],
+            hidden_units_global=config["hidden_units_global"],
             summary_net=self.summary_network,
         )
 
