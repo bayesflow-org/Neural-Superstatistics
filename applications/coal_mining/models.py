@@ -7,7 +7,7 @@ from priors import sample_random_walk, sample_scale
 from likelihoods import sample_poisson_process
 
 
-class PoissonRandomWalk:
+class RandomWalkPoissonModel:
     """A wrapper for a non-stationary Poisson process with a random walk transition."""
 
     def __init__(self, rng=None):

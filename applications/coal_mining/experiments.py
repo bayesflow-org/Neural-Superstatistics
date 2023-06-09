@@ -1,18 +1,20 @@
 import tensorflow as tf
 import bayesflow as bf
+import bayesloop as bl
+import sympy
 
 from custom_network import OneDimensionalAmortizer
 from configuration import default_settings
 
 
-class CoalMiningExperiment:
+class NeuralCoalMiningExperiment:
     def __init__(self, model, config=default_settings):
         """Creates an instance of the model with given configuration. When used in a BayesFlow pipeline,
         only the attribute ``self.generator`` and the method ``self.configure`` should be used.
 
         Parameters:
         -----------
-        model   : an instance of models.ToyModel
+        model   : an instance of models.RandomWalkPoissonModel
             The model wrapper, should include a callable attribute ``generator`` and a method
             ``configure()``
         config  : dict, optional, default: ``configuration.default_settings``
@@ -65,3 +67,33 @@ class CoalMiningExperiment:
 
         history = self.trainer.train_online(epochs, iterations_per_epoch, batch_size)
         return history
+
+
+class BayesLoopCoalMiningExperiment:
+    def __init__(self, grid_length=4000):
+        """Creates an instance of the model.
+
+        Parameters:
+        -----------
+        grid_length  : np.int32, default: 4000
+            The length of the approximation grid
+        """
+        self.study = bl.HyperStudy()
+        self.likelihood = bl.observationModels.Poisson(
+            'accident_rate',
+            bl.oint(0, 15, grid_length),
+            prior=sympy.stats.Exponential('expon', 0.5)
+            )
+        self.transition = bl.transitionModels.GaussianRandomWalk(
+            'sigma',
+            bl.oint(0, 1, grid_length),
+            target='accident_rate',
+            prior=sympy.stats.Beta("beta", 1, 25)
+            )
+        self.study.set(self.likelihood)
+        self.study.set(self.transition)
+        
+    def run(self, data):
+        self.study.load(data['disasters'], timestamps=data['year'])
+        self.study.fit(forwardOnly=True)
+        

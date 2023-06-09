@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
-
-from bayesflow.amortizers import AmortizedPosterior, TwoLevelAmortizedPosterior
-from bayesflow.networks import InvertibleNetwork, DeepSet, HierarchicalNetwork
-from bayesflow.trainers import Trainer
+import bayesflow as bf
 
 
 class Experiment(ABC):
