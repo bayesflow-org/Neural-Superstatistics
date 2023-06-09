@@ -8,6 +8,8 @@ from configuration import default_settings
 
 
 class NeuralCoalMiningExperiment:
+    """Wrapper for estimating the dynamic model of coal mining disasters using the neural method."""
+
     def __init__(self, model, config=default_settings):
         """Creates an instance of the model with given configuration. When used in a BayesFlow pipeline,
         only the attribute ``self.generator`` and the method ``self.configure`` should be used.
@@ -70,30 +72,33 @@ class NeuralCoalMiningExperiment:
 
 
 class BayesLoopCoalMiningExperiment:
+    """Wrapper for estimating the dynamic model of coal mining disasters using the benchmark bayeslopp method"""
+
     def __init__(self, grid_length=4000):
-        """Creates an instance of the model.
+        """Creates an instance of the dynamic coal mining model to be estimated with the
+        bayesloop software: http://bayesloop.com/
 
         Parameters:
         -----------
-        grid_length  : np.int32, default: 4000
+        grid_length  : int, optional, default: 4000
             The length of the approximation grid
         """
+
         self.study = bl.HyperStudy()
         self.likelihood = bl.observationModels.Poisson(
-            'accident_rate',
+            "accident_rate",
             bl.oint(0, 15, grid_length),
-            prior=sympy.stats.Exponential('expon', 0.5)
-            )
+            prior=sympy.stats.Exponential("expon", 0.5),
+        )
         self.transition = bl.transitionModels.GaussianRandomWalk(
-            'sigma',
+            "sigma",
             bl.oint(0, 1, grid_length),
-            target='accident_rate',
-            prior=sympy.stats.Beta("beta", 1, 25)
-            )
+            target="accident_rate",
+            prior=sympy.stats.Beta("beta", 1, 25),
+        )
         self.study.set(self.likelihood)
         self.study.set(self.transition)
-        
+
     def run(self, data):
-        self.study.load(data['disasters'], timestamps=data['year'])
+        self.study.load(data["disasters"], timestamps=data["year"])
         self.study.fit(forwardOnly=True)
-        
