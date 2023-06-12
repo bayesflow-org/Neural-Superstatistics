@@ -39,6 +39,9 @@ class NeuralCoalMiningExperiment:
             [
                 tf.keras.Sequential(
                     [
+                        tf.keras.layers.GRU(
+                            config["gru_hidden_units"], return_sequences=True
+                        ),
                         tf.keras.layers.LSTM(
                             config["lstm1_hidden_units"], return_sequences=True
                         )
