@@ -1,5 +1,6 @@
 import numpy as np
 from functools import partial
+from scipy.stats import beta, expon
 
 import bayesflow as bf
 
@@ -87,8 +88,8 @@ class RandomWalkPoissonModel:
 
         # Pack everything into a dict and log transform data and parameters
         out_dict = dict(
-            local_parameters=np.log1p(rates),
-            hyper_parameters=np.log1p(scales),
+            local_parameters=(rates - expon.mean(scale=2) / expon.std(scale=2)),
+            hyper_parameters=(scales - beta.mean(1, 25) / beta.std(1, 25)),
             summary_conditions=np.log1p(observations),
         )
         return out_dict
