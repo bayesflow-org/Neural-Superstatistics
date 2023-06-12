@@ -1,6 +1,7 @@
 import tensorflow as tf
 import bayesflow as bf
 import bayesloop as bl
+import numpy as np
 import sympy
 
 from custom_network import OneDimensionalAmortizer
@@ -83,7 +84,7 @@ class BayesLoopCoalMiningExperiment:
         grid_length  : int, optional, default: 4000
             The length of the approximation grid
         """
-
+        self.grid_length = grid_length
         self.study = bl.HyperStudy()
         self.likelihood = bl.observationModels.Poisson(
             "accident_rate",
@@ -100,5 +101,31 @@ class BayesLoopCoalMiningExperiment:
         self.study.set(self.transition)
 
     def run(self, data):
+        """Runs grid approximation as implemented in bayesloop.
+        
+        Returns:
+        --------
+        post_means : np.array of shape (num_steps)
+            An array of posterior means
+        post_stds  : np.array of shape (num_steps)
+            An array of posterior std. deviations
+        """
         self.study.load(data["disasters"], timestamps=data["year"])
         self.study.fit(forwardOnly=True)
+
+        # get posterior means and stds
+        num_steps = data['year'].shape[0]
+
+        post_densities = np.zeros((num_steps, self.grid_length))
+        for t in range(num_steps):
+            post_densities[t] = self.study.getParameterDistribution(data["year"][t], "accident_rate")[1]
+
+        post_means = self.study.getParameterMeanValues("accident_rate")
+        post_grid = self.study.getParameterDistribution(1852, "accident_rate")[0]
+
+        post_stds = np.zeros(num_steps)
+        for i in range(num_steps):
+            center_grid = (post_grid - post_means[i])**2
+            post_stds[i] = np.sqrt(np.sum(post_densities[i] * center_grid) / np.sum(post_densities[i]))
+        
+        return post_means, post_stds
