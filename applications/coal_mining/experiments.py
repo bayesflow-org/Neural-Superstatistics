@@ -110,7 +110,7 @@ class BayesLoopCoalMiningExperiment:
         post_stds  : np.array of shape (num_steps)
             An array of posterior std. deviations
         """
-        self.study.load(data["disasters"], timestamps=data["year"])
+        self.study.load(data["disasters"].astype(np.int32), timestamps=data["year"].astype(np.int32))
         self.study.fit(forwardOnly=True)
 
         # get posterior means and stds
