@@ -1,6 +1,6 @@
 default_settings = {
-    "lstm1_hidden_units": 128,
-    "lstm2_hidden_units": 64,
+    "lstm1_hidden_units": 512,
+    "lstm2_hidden_units": 512,
     "hidden_units_local": 256,
     "hidden_units_global": 256,
     "trainer": {
