@@ -86,10 +86,16 @@ class RandomWalkPoissonModel:
         scales = raw_dict.get("hyper_prior_draws").astype(np.float32)[..., None]
         observations = raw_dict.get("sim_data").astype(np.float32)[..., None]
 
-        # Pack everything into a dict and log transform data and parameters
+        # Pack everything into a dict, log transform data and  scale parameters
+        # out_dict = dict(
+        #     local_parameters=(rates - expon.mean(scale=2) / expon.std(scale=2)),
+        #     hyper_parameters=(scales - beta.mean(1, 25) / beta.std(1, 25)),
+        #     summary_conditions=np.log1p(observations),
+        # )
         out_dict = dict(
-            local_parameters=(rates - expon.mean(scale=2) / expon.std(scale=2)),
-            hyper_parameters=(scales - beta.mean(1, 25) / beta.std(1, 25)),
-            summary_conditions=np.log1p(observations),
+            local_parameters=rates,
+            hyper_parameters=scales,
+            summary_conditions=observations
         )
+
         return out_dict
