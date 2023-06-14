@@ -10,6 +10,5 @@ class RandomWalkDDM:
         only the attribute ``self.generator`` and the method ``self.configure`` should be used.
         """
 
-    @njit
     def generate(self, batch_size):
         self.test = 2
