@@ -62,7 +62,7 @@ class RandomWalkPoissonModel:
 
         return self.generator(batch_size, **kwargs)
 
-    def configure(self, raw_dict):
+    def configure(self, raw_dict, transform=True):
         """Configures the output of self.generator for a BayesFlow pipeline.
 
         1. Converts float64 to float32 (for TensorFlow)
@@ -71,8 +71,10 @@ class RandomWalkPoissonModel:
 
         Parameters:
         -----------
-        raw_dict : dict
+        raw_dict  : dict
             A simulation dictionary as returned by ``bayesflow.simulation.TwoLevelGenerativeModel``
+        transform : boolean,
+            An indicator to standardize the parameter and log-transform the data samples. 
 
         Returns:
         --------
@@ -86,16 +88,17 @@ class RandomWalkPoissonModel:
         scales = raw_dict.get("hyper_prior_draws").astype(np.float32)[..., None]
         observations = raw_dict.get("sim_data").astype(np.float32)[..., None]
 
-        # Pack everything into a dict, log transform data and  scale parameters
-        # out_dict = dict(
-        #     local_parameters=(rates - expon.mean(scale=2) / expon.std(scale=2)),
-        #     hyper_parameters=(scales - beta.mean(1, 25) / beta.std(1, 25)),
-        #     summary_conditions=np.log1p(observations),
-        # )
-        out_dict = dict(
-            local_parameters=rates,
-            hyper_parameters=scales,
-            summary_conditions=observations
-        )
+        if transform:
+            out_dict = dict(
+                local_parameters=(rates - expon.mean(scale=1) / expon.std(scale=1)),
+                hyper_parameters=(scales - beta.mean(1, 25) / beta.std(1, 25)),
+                summary_conditions=np.log1p(observations),
+            )
+        else:
+            out_dict = dict(
+                local_parameters=rates,
+                hyper_parameters=scales,
+                summary_conditions=observations
+            )
 
         return out_dict
