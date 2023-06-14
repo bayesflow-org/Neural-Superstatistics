@@ -3,6 +3,7 @@ import bayesflow as bf
 import bayesloop as bl
 import numpy as np
 import sympy
+import os
 
 from custom_network import OneDimensionalAmortizer
 from configuration import default_settings
@@ -103,9 +104,15 @@ class BayesLoopCoalMiningExperiment:
         self.study.set(self.likelihood)
         self.study.set(self.transition)
 
-    def run(self, data):
+    def run(self, data, path="../posterior_samples/"):
         """Runs grid approximation as implemented in bayesloop.
-        
+
+        Parameters:
+        -----------
+        data : dict,
+            Coal mining accident data
+        path : str, default: "../posterior_samples/"
+            Relative path to a directory to read/write posterior sample means and stds
         Returns:
         --------
         post_means : np.array of shape (num_steps)
@@ -113,6 +120,11 @@ class BayesLoopCoalMiningExperiment:
         post_stds  : np.array of shape (num_steps)
             An array of posterior std. deviations
         """
+        if os.listdir(path) != []:
+            post_means = np.load("../posterior_samples/" + "bl_post_means.npy")
+            post_stds = np.load("../posterior_samples/" + "bl_post_stds.npy")
+            return post_means, post_stds
+        
         self.study.load(data["disasters"].astype(np.int32), timestamps=data["year"].astype(np.int32))
         self.study.fit(forwardOnly=True)
 
@@ -131,4 +143,7 @@ class BayesLoopCoalMiningExperiment:
             center_grid = (post_grid - post_means[i])**2
             post_stds[i] = np.sqrt(np.sum(post_densities[i] * center_grid) / np.sum(post_densities[i]))
         
+        np.save("../posterior_samples/" + "bl_post_means.npy", post_means)
+        np.save("../posterior_samples/" + "bl_post_stds.npy", post_stds)
+
         return post_means, post_stds
