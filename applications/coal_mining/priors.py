@@ -25,7 +25,7 @@ def sample_scale(a=1, b=25, rng=None):
     return rng.beta(a, b)
 
 
-def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, rng=None):
+def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, expon_scale=0.5, rng=None):
     """Generates a single simulation from a random walk transition model.
 
     Parameters:
@@ -39,6 +39,8 @@ def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, rng=N
         The minimum value the parameter(s) can take.
     upper_bound     : int, optional, default: 8
         The maximum value the parameter(s) can take.
+    expon_scale     : float, optional, default: 0.5
+        The scale of the exponential prior for the first parameter value
     rng             : np.random.Generator or None, default: None
         An optional random number generator to use, if fixing the seed locally.
 
@@ -54,7 +56,7 @@ def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, rng=N
 
     # Sample initial rate
     theta_t = np.zeros(num_steps)
-    theta_t[0] = rng.exponential(scale=1)
+    theta_t[0] = rng.exponential(scale=expon_scale)
 
     # Run random walk from initial
     z = rng.random(size=num_steps - 1)

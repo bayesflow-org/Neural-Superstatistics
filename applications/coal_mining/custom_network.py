@@ -21,7 +21,12 @@ class OneDimensionalAmortizer(tf.keras.Model):
                     hidden_units_local,
                     activation='selu',
                     kernel_initializer='lecun_normal'
-                    ),
+                ),
+                tf.keras.layers.Dense(
+                    hidden_units_local,
+                    activation='selu',
+                    kernel_initializer='lecun_normal'
+                ),
                 tf.keras.layers.Dense(tfpl.IndependentNormal.params_size(1)),
                 tfpl.IndependentNormal(1),
             ]
@@ -33,7 +38,12 @@ class OneDimensionalAmortizer(tf.keras.Model):
                     hidden_units_global,
                     activation='selu',
                     kernel_initializer='lecun_normal'
-                    ),
+                ),
+                tf.keras.layers.Dense(
+                    hidden_units_local,
+                    activation='selu',
+                    kernel_initializer='lecun_normal'
+                ),
                 tf.keras.layers.Dense(tfpl.IndependentNormal.params_size(1)),
                 tfpl.IndependentNormal(1),
             ]
@@ -41,7 +51,7 @@ class OneDimensionalAmortizer(tf.keras.Model):
 
         if summary_net is None:
             raise NotImplementedError(
-                "You need a summary netowork for this toy example!"
+                "You need a summary network for this toy example!"
             )
         self.summary_net = summary_net
 
