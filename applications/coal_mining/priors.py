@@ -17,7 +17,7 @@ def sample_scale(a=1, b=25, rng=None):
     Returns:
     --------
     scale : float
-        The randomyl drawn scale parameter
+        The randomly drawn scale parameter
     """
 
     if rng is None:
@@ -30,8 +30,8 @@ def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, rng=N
 
     Parameters:
     -----------
-    sigmas          : float
-        The standard deviations of the random walk process
+    sigma          : float
+        The standard deviation of the random walk process
     num_steps       : int, optional, default: 110
         The number of time steps to take for the random walk. Default
         corresponds to the number of years in the Coal Mining Diseaser Dataset
@@ -48,7 +48,7 @@ def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, rng=N
         The array of time-varying parameters
     """
 
-    # Configure RNG, if provided
+    # Configure RNG, if not provided
     if rng is None:
         rng = np.random.default_rng()
 
