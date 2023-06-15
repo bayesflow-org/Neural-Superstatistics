@@ -90,8 +90,8 @@ class RandomWalkPoissonModel:
 
         if transform:
             out_dict = dict(
-                local_parameters=(rates - expon.mean(scale=0.5) / expon.std(scale=0.5)),
-                hyper_parameters=(scales - beta.mean(1, 25) / beta.std(1, 25)),
+                local_parameters=(rates - expon.mean(scale=1.0)) / expon.std(scale=1.0),
+                hyper_parameters=(scales - beta.mean(1, 25)) / beta.std(1, 25),
                 summary_conditions=np.log1p(observations),
             )
         else:
