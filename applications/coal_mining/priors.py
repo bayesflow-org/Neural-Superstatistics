@@ -25,13 +25,13 @@ def sample_scale(a=1, b=25, rng=None):
     return rng.beta(a, b)
 
 
-def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, expon_scale=0.5, rng=None):
+def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, expon_scale=1.0, rng=None):
     """Generates a single simulation from a random walk transition model.
 
     Parameters:
     -----------
-    sigma          : float
-        The standard deviation of the random walk process
+    sigmas          : float
+        The standard deviations of the random walk process
     num_steps       : int, optional, default: 110
         The number of time steps to take for the random walk. Default
         corresponds to the number of years in the Coal Mining Diseaser Dataset
@@ -50,7 +50,7 @@ def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, expon
         The array of time-varying parameters
     """
 
-    # Configure RNG, if not provided
+    # Configure RNG, if provided
     if rng is None:
         rng = np.random.default_rng()
 
@@ -59,9 +59,7 @@ def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, expon
     theta_t[0] = rng.exponential(scale=expon_scale)
 
     # Run random walk from initial
-    z = rng.random(size=num_steps - 1)
+    z = rng.normal(size=num_steps - 1)
     for t in range(1, num_steps):
-        theta_t[t] = np.clip(
-            theta_t[t - 1] + sigma * z[t - 1], lower_bound, upper_bound
-        )
+        theta_t[t] = np.clip(theta_t[t - 1] + sigma * z[t - 1], a_min=0, a_max=8)
     return theta_t

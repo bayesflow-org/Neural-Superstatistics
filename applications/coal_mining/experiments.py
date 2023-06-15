@@ -100,7 +100,7 @@ class BayesLoopCoalMiningExperiment:
         self.likelihood = bl.observationModels.Poisson(
             "accident_rate",
             bl.oint(0, 15, grid_length),
-            prior=sympy.stats.Exponential("expon", 0.5),
+            prior=sympy.stats.Exponential("expon", 1.0),
         )
         
         # Set up transition model
@@ -173,7 +173,6 @@ class BayesLoopCoalMiningExperiment:
         post_means = self.study.getParameterMeanValues("accident_rate")
         post_grid = self.study.getParameterDistribution(1852, "accident_rate")[0]
         post_stds = np.zeros(num_steps)
-
         for i in range(num_steps):
             center_grid = (post_grid - post_means[i])**2
             post_stds[i] = np.sqrt(np.sum(post_densities[i] * center_grid) / np.sum(post_densities[i]))

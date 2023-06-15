@@ -19,13 +19,7 @@ class OneDimensionalAmortizer(tf.keras.Model):
             [
                 tf.keras.layers.Dense(
                     hidden_units_local,
-                    activation='selu',
-                    kernel_initializer='lecun_normal'
-                ),
-                tf.keras.layers.Dense(
-                    hidden_units_local,
-                    activation='selu',
-                    kernel_initializer='lecun_normal'
+                    activation='relu'
                 ),
                 tf.keras.layers.Dense(tfpl.IndependentNormal.params_size(1)),
                 tfpl.IndependentNormal(1),
@@ -36,13 +30,7 @@ class OneDimensionalAmortizer(tf.keras.Model):
             [
                 tf.keras.layers.Dense(
                     hidden_units_global,
-                    activation='selu',
-                    kernel_initializer='lecun_normal'
-                ),
-                tf.keras.layers.Dense(
-                    hidden_units_local,
-                    activation='selu',
-                    kernel_initializer='lecun_normal'
+                    activation='relu',
                 ),
                 tf.keras.layers.Dense(tfpl.IndependentNormal.params_size(1)),
                 tfpl.IndependentNormal(1),
