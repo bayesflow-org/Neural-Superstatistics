@@ -14,8 +14,8 @@ def sample_poisson_process(theta_t, rng=None):
 
     Returns:
     --------
-    theta_t : np.ndarray of shape (num_steps, num_params)
-        The array of time-varying parameters
+    observations : np.ndarray of shape (num_steps, )
+        Samples from the poisson process with a varying rate parameter
     """
 
     if rng is None:
