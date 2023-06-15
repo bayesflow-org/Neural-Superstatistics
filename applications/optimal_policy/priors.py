@@ -1,84 +1,95 @@
 import numpy as np
 
-def sample_scale(a=1, b=25, rng=None):
-    """Generates a single random draw from a beta prior over the
-    scale of the random walk. The artificial bounds are for comparability with bayesloop.
+LOWER_BOUNDS = np.array([0, 0, 0])
+UPPER_BOUNDS = np.array([8, 6, 1])
+
+def sample_scale(a=1, b=25, num_params=3, rng=None):
+    """Generates num_params random draws from a beta prior over the
+    scale of the random walk.
 
     Parameters:
     -----------
-    a   : float, optional, default: 1
+    a          : float, optional, default: 1
         The first parameter of the beta distribution
-    b   : float, optional, default: 25
+    b          : float, optional, default: 25
         The second parameter of the beta distribution
-    rng : np.random.Generator or None, default: None
+    num_params : int, optional, default: 3
+        The number of scale parameters
+    rng        : np.random.Generator or None, default: None
         An optional random number generator to use, if fixing the seed locally.
 
     Returns:
     --------
-    scale : float
-        The randomyl drawn scale parameter
+    scale : np.array
+        The randomly drawn scale parameters
     """
 
     if rng is None:
         rng = np.random.default_rng()
-    return rng.beta(a, b)
+    return rng.beta(a, b, num_params)
 
-def sample_switch_prob():
-    """Generates a single random draw from a beta prior over the
+def sample_switch_prob(min=0.0, max=0.2, num_params=2, rng=None):
+    """Generates two random draws from a uniform prior over the
     switch probability of the regime switching transition.
 
     Parameters:
     -----------
-    a   : float, optional, default: 1
-        The first parameter of the beta distribution
-    b   : float, optional, default: 25
-        The second parameter of the beta distribution
+    min        : float, optional, default: 0.0
+        The minimum of the uniform distribution
+    max        : float, optional, default: 0.2
+        The maximum of the uniform distribution
+    num_params : int, optional, default: 2
+        The number of switch probability parameters
     rng : np.random.Generator or None, default: None
         An optional random number generator to use, if fixing the seed locally.
 
     Returns:
     --------
-    scale : float
-        The randomyl drawn scale parameter
+    switch_prob : np.array
+        The randomly drawn switch probability parameters
     """
-    RNG.uniform(0.0, [0.2, 0.05])
-    pass
+    if rng is None:
+        rng = np.random.default_rng()
 
-def sample_random_walk(sigma, num_steps=110, lower_bound=0, upper_bound=8, rng=None):
-    # """Generates a single simulation from a random walk transition model.
+    return rng.uniform(min, max, num_params)
 
-    # Parameters:
-    # -----------
-    # sigmas          : float
-    #     The standard deviations of the random walk process
-    # num_steps       : int, optional, default: 110
-    #     The number of time steps to take for the random walk. Default
-    #     corresponds to the number of years in the Coal Mining Diseaser Dataset
-    # lower_bound     : int, optional, default: 0
-    #     The minimum value the parameter(s) can take.
-    # upper_bound     : int, optional, default: 8
-    #     The maximum value the parameter(s) can take.
-    # rng             : np.random.Generator or None, default: None
-    #     An optional random number generator to use, if fixing the seed locally.
+def sample_random_walk(sigmas, num_steps=1320, lower_bounds=LOWER_BOUNDS, upper_bounds=UPPER_BOUNDS, rng=None):
+    """Generates a single simulation from a random walk transition model.
 
-    # Returns:
-    # --------
-    # theta_t : np.ndarray of shape (num_steps, num_params)
-    #     The array of time-varying parameters
-    # """
+    Parameters:
+    -----------
+    sigmas          : np.array
+        The standard deviations of the random walk process
+    num_steps       : int, optional, default: 1320
+        The number of time steps to take for the random walk. Default
+        corresponds to the maximal number of trials in the Optimal Policy Dataset
+    lower_bounds    : np.array, optional, default: [0, 0, 0]
+        The minimum values the parameters can take.
+    upper_bound     : np.array, optional, default: [8, 6, 1]
+        The maximum values the parameters can take.
+    rng             : np.random.Generator or None, default: None
+        An optional random number generator to use, if fixing the seed locally.
 
-    # # Configure RNG, if provided
-    # if rng is None:
-    #     rng = np.random.default_rng()
+    Returns:
+    --------
+    theta_t : np.ndarray of shape (num_steps, num_params)
+        The array of time-varying parameters
+    """
 
-    # # Sample initial rate
-    # theta_t = np.zeros(num_steps)
-    # theta_t[0] = rng.exponential(scale=1)
+    # Configure RNG, if not provided
+    if rng is None:
+        rng = np.random.default_rng()
 
-    # # Run random walk from initial
-    # z = rng.random(size=num_steps - 1)
-    # for t in range(1, num_steps):
-    #     theta_t[t] = np.clip(
-    #         theta_t[t - 1] + sigma * z[t - 1], lower_bound, upper_bound
-    #     )
-    # return theta_t
+     # Sample initial parameters
+    theta_t = np.zeros((num_steps, 3))
+    theta_t[0, 0] = rng.gamma(shape=5.0, scale=1.0/3.0)
+    theta_t[0, 1] = rng.gamma(shape=4.0, scale=1.0/3.0)
+    theta_t[0, 2] = rng.gamma(shape=1.5, scale=1.0/5.0)
+
+    # Run random walk from initial
+    z = rng.random(size=(num_steps - 1, 3))
+    for t in range(1, num_steps):
+        theta_t[t] = np.clip(
+            theta_t[t - 1] + sigmas * z[t - 1], lower_bounds, upper_bounds
+        )
+    return theta_t

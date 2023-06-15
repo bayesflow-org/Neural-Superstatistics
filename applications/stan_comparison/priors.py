@@ -1,10 +1,8 @@
 import numpy as np
 from scipy.stats import beta, halfnorm
 
-
 LOWER_BOUNDS = np.array([0.0, 0.0, 0.0])
 UPPER_BOUNS = np.array([8.0, 6.0, 1.0])
-
 
 def sample_scale(a=1, b=25, num_params=3, rng=None):
     """Generates num_params random draws from a half-normal prior over the
@@ -30,7 +28,6 @@ def sample_scale(a=1, b=25, num_params=3, rng=None):
     if rng is None:
         rng = np.random.default_rng()
     return rng.beta(a, b, num_params)
-
 
 def sample_random_walk(sigmas, num_steps=100, lower_bounds=LOWER_BOUNDS, upper_bounds=UPPER_BOUNS, rng=None):
     """Generates a single simulation from a random walk transition model.
