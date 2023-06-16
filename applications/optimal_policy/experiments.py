@@ -44,11 +44,10 @@ class RandomWalkDiffusionExperiment(Experiment):
         # TODO:
         # config  : dict, optional, default: ``configuration.default_settings``
         #     A configuration dictionary with the following keys:
-        #     ``lstm1_hidden_units``  - The dimensions of the first summary net
-        #     ``lstm2_hidden_units``  - The dimensions of the second summary net
-        #     ``hidden_units_local``  - The width of the hidden layer of the local network
-        #     ``hidden_units_global`` - The width of the hidden layer of the global network
-        #     ``trainer`` - The settings for the ``bf.trainers.Trainer``, not icnluding
+        #     ``lstm1_hidden_units``        - The dimensions of the first LSTM of the first summary net
+        #     ``lstm2_hidden_units``        - The dimensions of the second LSTM of the first summary net
+        #     ``transformer_hidden_units``  - The dimensions of the transformer of the second summary net
+        #     ``trainer``                   - The settings for the ``bf.trainers.Trainer``, not icnluding
         #         the ``amortizer``, ``generative_model``, and ``configurator`` keys,
         #         as these will be provided internaly by the Experiment instance
         # """
@@ -59,31 +58,53 @@ class RandomWalkDiffusionExperiment(Experiment):
         # for local and global amortizer, respectively
         self.summary_network = bf.networks.HierarchicalNetwork(
             [
-                tf.keras.Sequential([
-                    tf.keras.layers.LSTM(512, return_sequences=True),
-                    tf.keras.layers.LSTM(128, return_sequences=True),
-                    ]),
-                bf.networks.TimeSeriesTransformer(128, template_dim=128, summary_dim=32)
+                tf.keras.Sequential(
+                    [
+                        tf.keras.layers.LSTM(
+                            config["lstm1_hidden_units"], return_sequences=True
+                            ),
+                        tf.keras.layers.LSTM(
+                            config["lstm2_hidden_units"], return_sequences=True
+                        ),
+                    ]
+                ),
+                bf.networks.TimeSeriesTransformer(
+                    config["transformer_hidden_units"], template_dim=128, summary_dim=32
+                    ),
             ]
         )
 
-        # # Custom amortizer for one-dimensional inference
-        # self.amortizer = bf.amortizers.AmortizedPosterior(
-        #     hidden_units_local=config["hidden_units_local"],
-        #     hidden_units_global=config["hidden_units_global"],
-        #     summary_net=self.summary_network,
-        # )
+        self.local_net = bf.amortizers.AmortizedPosterior(
+            bf.networks.InvertibleNetwork(num_params=3,
+                                          num_coupling_layers=8,
+                                          coupling_design='interleaved'
+                                          ))
 
-        # # Trainer setup
-        # self.trainer = bf.trainers.Trainer(
-        #     amortizer=self.amortizer,
-        #     generative_model=self.model.generate,
-        #     configurator=self.model.configure,
-        #     **config.get("trainer")
-        # )
+        self.global_net = bf.amortizers.AmortizedPosterior(
+            bf.networks.InvertibleNetwork(num_params=3,
+                                          num_coupling_layers=6,
+                                          coupling_design='interleaved'
+                                          ))
 
-    def run(self, *args, **kwargs):
-        pass
+        self.amortizer = bf.amortizers.TwoLevelAmortizedPosterior(
+            self.local_net, 
+            self.global_net, 
+            self.summary_network
+            )
+
+        # Trainer setup
+        self.trainer = bf.trainers.Trainer(
+            amortizer=self.amortizer,
+            generative_model=self.model.generate,
+            configurator=self.model.configure,
+            **config.get("trainer")
+        )
+
+    def run(self, epochs=10, iterations_per_epoch=1000, batch_size=32, **kwargs):
+        """Proxy for online training."""
+
+        history = self.trainer.train_online(epochs, iterations_per_epoch, batch_size, **kwargs)
+        return history
 
     def evaluate(self, *args, **kwargs):
         pass
