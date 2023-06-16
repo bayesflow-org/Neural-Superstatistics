@@ -9,4 +9,3 @@ default_settings = {
         "memory": False,
     },
 }
-

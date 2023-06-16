@@ -100,7 +100,7 @@ class RandomWalkDiffusionExperiment(Experiment):
             **config.get("trainer")
         )
 
-    def run(self, epochs=10, iterations_per_epoch=1000, batch_size=32, **kwargs):
+    def run(self, epochs=50, iterations_per_epoch=1000, batch_size=32, **kwargs):
         """Proxy for online training."""
 
         history = self.trainer.train_online(epochs, iterations_per_epoch, batch_size, **kwargs)

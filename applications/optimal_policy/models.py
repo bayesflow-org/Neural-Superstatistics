@@ -93,7 +93,7 @@ class StaticDiffusionModel(DiffusionModel):
         -----------
         raw_dict  : dict
             A simulation dictionary as returned by ``bayesflow.simulation.GenerativeModel``
-        transform : boolean,
+        transform : boolean, optional, default: True
             An indicator to standardize the parameters. 
 
         Returns:
@@ -193,7 +193,7 @@ class RandomWalkDiffusion(DiffusionModel):
 
         return self.generator(batch_size, **kwargs)
 
-    def configure(self, raw_dict):
+    def configure(self, raw_dict, transform=True):
         """Configures the output of self.generator for a BayesFlow pipeline.
 
         1. Converts float64 to float32 (for TensorFlow)
@@ -204,7 +204,7 @@ class RandomWalkDiffusion(DiffusionModel):
         -----------
         raw_dict  : dict
             A simulation dictionary as returned by ``bayesflow.simulation.TwoLevelGenerativeModel``
-        transform : boolean,
+        transform : boolean, optional, default: True
             An indicator to standardize the parameter and log-transform the data samples. 
 
         Returns:
