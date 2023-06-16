@@ -3,7 +3,7 @@ default_settings = {
     "lstm2_hidden_units": 128,
     "transformer_hidden_units": 128,
     "trainer": {
-        "checkpoint_path": "../checkpoints/coal_mining",
+        "checkpoint_path": "../checkpoints/optimal_policy",
         "max_to_keep": 1,
         "default_lr": 5e-4,
         "memory": False,
