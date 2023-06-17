@@ -3,7 +3,7 @@ from functools import partial
 import numpy as np
 import bayesflow as bf
 
-from priors import sample_scale, sample_switch_prob, sample_ddm_params, sample_random_walk
+from priors import sample_scale, sample_switch_prob, sample_ddm_params, sample_random_walk, sample_regime_switching
 from likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process
 
 HYPER_PRIOR_MEAN = 0.04
@@ -126,8 +126,11 @@ class StaticDiffusionModel(DiffusionModel):
 
 
 class StationaryDiffusion(DiffusionModel):
+    """A wrapper for a Stationary Diffusion Decision process with
+    random variability."""
 
-    def __init__(self, *args, **kwargs):
+
+    def __init__(self, rng=None):
         pass
 
     def generate(self, batch_size, *args, **kwargs):
@@ -142,7 +145,7 @@ class RandomWalkDiffusion(DiffusionModel):
     a Gaussian random walk transition model."""
 
     def __init__(self, rng=None):
-        """Creates an instance of the Non-Stationary Diffusion Decision with given configuration.
+        """Creates an instance of the Non-Stationary Diffusion Decision model with given configuration.
         When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
         the method ``self.configure`` should be used.
 
@@ -235,9 +238,41 @@ class RandomWalkDiffusion(DiffusionModel):
 
 
 class RegimeSwitchingDiffusion(DiffusionModel):
+    # """A wrapper for a Regime Switching Diffusion Decision process."""
 
-    def __init__(self, *args, **kwargs):
-        pass
+    # def __init__(self, rng=None):
+    #     """Creates an instance of the Regime Switching Diffusion Decision model with given configuration.
+    #     When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
+    #     the method ``self.configure`` should be used.
+
+    #     Parameters:
+    #     -----------
+    #     rng : np.random.Generator or None, default: None
+    #         An optional random number generator to use, if fixing the seed locally.
+    #     """
+
+    #     # Store local RNG instance
+    #     if rng is None:
+    #         rng = np.random.default_rng()
+    #     self._rng = rng
+
+    #     # Create prior wrapper
+    #     self.prior = bf.simulation.TwoLevelPrior(
+    #         hyper_prior_fun=partial(sample_switch_prob, rng=self._rng),
+    #         local_prior_fun=partial(sample, rng=self._rng),
+    #     )
+
+    #     # Create simulator wrapper
+    #     self.likelihood = bf.simulation.Simulator(
+    #         simulator_fun=sample_random_walk_diffusion_process,
+    #     )
+
+    #     # Create generative model wrapper. Will generate 3D tensors
+    #     self.generator = bf.simulation.TwoLevelGenerativeModel(
+    #         prior=self.prior,
+    #         simulator=self.likelihood,
+    #         name="random_walk_diffusion_model",
+    #     )
 
     def generate(self, batch_size, *args, **kwargs):
         pass

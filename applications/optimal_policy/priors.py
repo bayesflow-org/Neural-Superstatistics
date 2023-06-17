@@ -42,15 +42,15 @@ def sample_switch_prob(min=0.0, max=0.2, rng=None):
         rng = np.random.default_rng()
     return rng.uniform(min, max, 2)
 
-def sample_variability(loc=0.0, scale=0.2):
-    """Generates 3 random draws from a half-normal prior over the
+def sample_stationary_variability(loc=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], scale=[2.5, 2.5, 1.0, 0.2, 0.2, 0.2]):
+    """Generates 6 random draws from a half-normal prior over the
     scales of the stationary variability.
 
     Parameters:
     -----------
-    loc          : float, optional, default: 0.0
-        The location of teh half-normal distribution.
-    scale        : float, optional, default: 0.2
+    loc          : list, optional, default: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        The location of the half-normal distribution.
+    scale        : list, optional, default: [2.5, 2.5, 1.0, 0.2, 0.2, 0.2]
         The scale of teh half-normal distribution.
 
     Returns:
@@ -59,7 +59,7 @@ def sample_variability(loc=0.0, scale=0.2):
         The randomly drawn variability parameters.
     """
 
-    return halfnorm.rvs(loc, scale, 3)
+    return halfnorm.rvs(loc=loc, scale=scale)
 
 def sample_ddm_params(loc=[0.0, 0.0, 0.0], scale=[2.5, 2.5, 1.0]):
     """Generates random draws from a half-normal prior over the
@@ -137,48 +137,7 @@ def sample_random_walk(sigma, num_steps=1320, lower_bounds=[0, 0, 0], upper_boun
         )
     return theta_t
 
-def sample_stationary_variability(variability, num_steps=1320, lower_bounds=[0, 0, 0], upper_bounds=[8, 6, 4], rng=None):
-    """Generates a single simulation from a stationary variabillty model.
-
-    Parameters:
-    -----------
-    variability      : np.ndarray of shape (3, )
-        The scales of the stationary variabillty process.
-    num_steps       : int, optional, default: 1320
-        The number of time steps to take for stationary variabillty process. Default
-        corresponds to the maximal number of trials in the Optimal Policy Dataset.
-    lower_bounds    : list, optional, default: [0, 0, 0]
-        The minimum values the parameters can take.
-    upper_bound     : list, optional, default: [8, 6, 1]
-        The maximum values the parameters can take.
-    rng             : np.random.Generator or None, default: None
-        An optional random number generator to use, if fixing the seed locally.
-
-    Returns:
-    --------
-    theta_t : np.ndarray of shape (num_steps, 3)
-        The array of time-varying parameters
-    """
-
-    # Configure RNG, if not provided
-    if rng is None:
-        rng = np.random.default_rng()
-    # Sample initial parameters
-    theta_t = np.zeros((num_steps, 3))
-    theta_t[0] = sample_ddm_params()
-    # Random variability process for v and a
-    theta_t[1:, :2] = np.clip(
-        rng.normal(loc=theta_t[0, :2], scale=variability[:2], size=(num_steps, 2)),
-        lower_bounds, upper_bounds
-        )
-    # Random variability process for tau
-    theta_t[1:, 2] = np.clip(
-        rng.uniform(low=theta_t[0, 2] - variability[2]/2, high=theta_t[0, 2] + variability[2]/2),
-        lower_bounds, upper_bounds
-        )
-    return theta_t
-
-def sample_regime_switch(switch_prob, shared_tau, num_steps=1320, lower_bounds=[0, 0], upper_bounds=[8, 6], rng=None):
+def sample_regime_switching(switch_prob, shared_tau, num_steps=1320, lower_bounds=[0, 0], upper_bounds=[8, 6], rng=None):
     """Generates a single simulation from a regime switching model.
 
     Parameters:
