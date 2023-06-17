@@ -16,9 +16,9 @@ tb_subset <- tb %>%
 meta <- do.call("rbind",strsplit(sub("\\."," ", tb_subset$path),"_"))
 
 tb_subset %<>%
-  mutate(id = extract_numeric(meta[, 3]),
-         feedback = meta[, 4],
-         trial_condition = meta[, 5]) %>% 
+  mutate(id = extract_numeric(meta[, 2]),
+         feedback = meta[, 3],
+         trial_condition = meta[, 4]) %>% 
   relocate(id, feedback, trial_condition) %>% 
   select(-c(path, coherentDots, numberofDots,
             percentCoherence, eventCount, averageFrameRate)) %>% 
@@ -27,10 +27,15 @@ tb_subset %<>%
          correct_resp = winningDirection,
          resp = response,
          rt = RT) %>% 
-  mutate(rt = ifelse(correct == 1, rt/1000, -(rt/1000)))
-
-summary <- tb_subset %>% 
-  group_by(id) %>% 
-  summarise(n = n())
+  mutate(rt = ifelse(correct == 1, rt/1000, -(rt/1000)),
+         id = factor(id,
+                     levels = unique(id),
+                     labels = seq(1, length(unique(id)))),
+         id = as.numeric(as.character(id)))
 
 write_csv(tb_subset, "optimal_policy_data.csv")
+
+
+
+
+
