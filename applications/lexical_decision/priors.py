@@ -1,45 +1,37 @@
 import numpy as np
+from scipy.stats import halfnorm
 
 LOWER_BOUNDS = np.array([0, 0, 0, 0, 0, 0])
 UPPER_BOUNDS = np.array([8, 8, 8, 8, 6, 4])
 
-DDM_PARAM_PRIOR_SHAPES = np.array([5.0, 5.0, 5.0, 5.0, 4.0, 1.5])
-DDM_PARAM_PRIOR_SCALES = np.array([1/3.0, 1/3.0, 1/3.0, 1/3.0, 1/3.0, 1/5.0])
-
-def sample_scale(a=1, b=25, num_params=6, rng=None):
-    """Generates num_params random draws from a beta prior over the
+def sample_scale(loc=[0, 0, 0], scale=[0.1, 0.1, 0.01]):
+    """Generates 3 random draws from a half-normal prior over the
     scale of the random walk.
 
     Parameters:
     -----------
-    a          : float, optional, default: 1
-        The first parameter of the beta distribution.
-    b          : float, optional, default: 25
-        The second parameter of the beta distribution.
-    num_params : int, optional, default: 6
-        The number of scale parameters.
-    rng        : np.random.Generator or None, default: None
-        An optional random number generator to use, if fixing the seed locally.
+    loc    : list, optional, default: [0, 0, 0]
+        The location parameters of the half-normal distribution.
+    scale  : flist, optional, default: [0.1, 0.1, 0.01]
+        The scale parameters of the half-normal distribution.
 
     Returns:
     --------
-    scale : np.array
+    scales : np.array
         The randomly drawn scale parameters.
     """
 
-    if rng is None:
-        rng = np.random.default_rng()
-    return rng.beta(a, b, num_params)
+    return halfnorm.rvs(loc=loc, scale=scale)
 
-def sample_ddm_params(shapes=DDM_PARAM_PRIOR_SHAPES, scales=DDM_PARAM_PRIOR_SCALES, rng=None):
+def sample_ddm_params(shapes=[5.0, 5.0, 5.0, 5.0, 4.0, 1.5], scales=[1/3.0, 1/3.0, 1/3.0, 1/3.0, 1/3.0, 1/5.0], rng=None):
     """Generates random draws from a gamma prior over the
-    diffusion decision parameters,  4 v, a, tau.
+    diffusion decision parameters,  4 * v, a, tau.
 
     Parameters:
     -----------
-    shapes     : np.array, optional, default: [5.0, 5.0, 5.0, 5.0, 4.0, 1.5]
+    shapes     : list, optional, default: [5.0, 5.0, 5.0, 5.0, 4.0, 1.5]
         The shapes of the gamma distribution.
-    scales     : np.array, optional, default: [1/3.0, 1/3.0, 1/3.0, 1/3.0, 1/3.0, 1/5.0]
+    scales     : list, optional, default: [1/3.0, 1/3.0, 1/3.0, 1/3.0, 1/3.0, 1/5.0]
         The scales of the gamma distribution.
     rng : np.random.Generator or None, default: None
         An optional random number generator to use, if fixing the seed locally.
@@ -47,7 +39,7 @@ def sample_ddm_params(shapes=DDM_PARAM_PRIOR_SHAPES, scales=DDM_PARAM_PRIOR_SCAL
     Returns:
     --------
     ddm_params : np.array
-        The randomly drawn DDM parameters, 4 v, a, tau.
+        The randomly drawn DDM parameters, 4 * v, a, tau.
     """
 
     if rng is None:
@@ -76,15 +68,14 @@ def sample_random_walk(sigmas, num_steps=3200, lower_bounds=LOWER_BOUNDS, upper_
     theta_t : np.ndarray of shape (num_steps, num_params)
         The array of time-varying parameters
     """
-
     # Configure RNG, if not provided
     if rng is None:
         rng = np.random.default_rng()
-
-     # Sample initial parameters
+    # Sample initial parameters
     theta_t = np.zeros((num_steps, 6))
     theta_t[0] = sample_ddm_params()
-
+    # All drift rates share the same sigma
+    sigmas = np.c_[np.stack([sigmas[:, 0]] * 4, axis=0).T, sigmas[:, 1:]]
     # Run random walk from initial
     z = rng.normal(size=(num_steps - 1, 6))
     for t in range(1, num_steps):
