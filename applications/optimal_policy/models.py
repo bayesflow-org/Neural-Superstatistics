@@ -6,11 +6,6 @@ import bayesflow as bf
 from priors import sample_scale, sample_switch_prob, sample_ddm_params, sample_random_walk, sample_regime_switching
 from likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process
 
-HYPER_PRIOR_MEAN = 0.04
-HYPER_PRIOR_STD = 0.04
-LOCAL_PRIOR_MEANS = np.array([1.8, 1.5, 0.4])
-LOCAL_PRIOR_STDS = np.array([1.2, 1.0, 0.3])
-
 
 class DiffusionModel(ABC):
     """An interface for running a standardized simulated experiment."""
@@ -155,6 +150,11 @@ class RandomWalkDiffusion(DiffusionModel):
             An optional random number generator to use, if fixing the seed locally.
         """
 
+        self.hyper_prior_mean = 0.04
+        self.hyper_prior_std = 0.04
+        self.local_prior_means = np.array([1.8, 1.5, 0.4])
+        self.local_prior_stds = np.array([1.2, 1.0, 0.3])
+
         # Store local RNG instance
         if rng is None:
             rng = np.random.default_rng()
@@ -223,8 +223,8 @@ class RandomWalkDiffusion(DiffusionModel):
 
         if transform:
             out_dict = dict(
-                local_parameters=(theta_t - LOCAL_PRIOR_MEANS) / LOCAL_PRIOR_STDS,
-                hyper_parameters=(scales - HYPER_PRIOR_MEAN) / HYPER_PRIOR_STD,
+                local_parameters=(theta_t - self.local_prior_means) / self.local_prior_stds,
+                hyper_parameters=(scales - self.hyper_prior_mean) / self.hyper_prior_std,
                 summary_conditions=rt,
             )
         else:
