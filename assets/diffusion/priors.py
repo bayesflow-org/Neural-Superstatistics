@@ -1,7 +1,9 @@
 import numpy as np
 from scipy.stats import halfnorm
 
-def sample_scale(loc=[0, 0, 0], scale=[0.1, 0.1, 0.01]):
+from configuration import *
+
+def sample_scale(loc=default_scale_prior_loc, scale=default_scale_prior_scale):
     """Generates 3 random draws from a half-normal prior over the
     scale of the random walk.
 
@@ -42,7 +44,7 @@ def sample_switch_prob(min=0.0, max=0.2, rng=None):
         rng = np.random.default_rng()
     return rng.uniform(min, max, 2)
 
-def sample_stationary_variability(loc=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], scale=[2.5, 2.5, 1.0, 0.2, 0.2, 0.2]):
+def sample_stationary_variability(loc=default_variability_prior_loc, scale=default_variability_prior_scale):
     """Generates 6 random draws from a half-normal prior over the
     scales of the stationary variability.
 
@@ -61,7 +63,7 @@ def sample_stationary_variability(loc=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], scale=[2.5
 
     return halfnorm.rvs(loc=loc, scale=scale)
 
-def sample_ddm_params(loc=[0.0, 0.0, 0.0], scale=[2.5, 2.5, 1.0]):
+def sample_ddm_params(loc=default_ddm_params_prior_loc, scale=default_ddm_params_prior_scale):
     """Generates random draws from a half-normal prior over the
     diffusion decision parameters, v, a, tau.
 
@@ -99,7 +101,7 @@ def sample_shared_tau(loc=0.0, scale=1.0):
 
     return halfnorm.rvs(loc=loc, scale=scale)
 
-def sample_random_walk(sigma, num_steps=1320, lower_bounds=[0, 0, 0], upper_bounds=[8, 6, 4], rng=None):
+def sample_random_walk(sigma, num_steps=1320, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a random walk transition model.
 
     Parameters:
@@ -137,7 +139,7 @@ def sample_random_walk(sigma, num_steps=1320, lower_bounds=[0, 0, 0], upper_boun
         )
     return theta_t
 
-def sample_regime_switching(switch_prob, shared_tau, num_steps=1320, lower_bounds=[0, 0], upper_bounds=[8, 6], rng=None):
+def sample_regime_switching(switch_prob, shared_tau, num_steps=1320, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a regime switching model.
 
     Parameters:

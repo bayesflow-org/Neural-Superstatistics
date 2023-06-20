@@ -1,6 +1,9 @@
 import numpy as np
 from numba import njit
 
+from priors import sample_ddm_params
+from configuration import default_lower_bounds, default_upper_bounds
+
 @njit
 def _sample_diffusion_trial(v, a, tau, beta=0.5, dt=0.001, s=1.0, max_iter=1e5):
     """Generates a single response time from a Diffusion Decision process.
@@ -118,7 +121,7 @@ def sample_stationary_diffusion_process(theta, num_steps=1320, beta=0.5, lower_b
     # Random variability process for v and a
     theta_t[:, :2] = np.clip(
         np.random.normal(loc=theta[:2], scale=theta[3:5], size=(num_steps, 2)),
-        lower_bounds[:2], upper_bounds{:2}
+        lower_bounds[:2], upper_bounds[:2]
         )
     # Random variability process for tau
     theta_t[:, 2] = np.clip(

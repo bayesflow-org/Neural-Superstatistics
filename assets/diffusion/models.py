@@ -3,9 +3,8 @@ from functools import partial
 import numpy as np
 import bayesflow as bf
 
-from priors import sample_scale, sample_switch_prob, sample_ddm_params, sample_random_walk, sample_regime_switching
 from likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process
-
+from priors import sample_scale, sample_switch_prob, sample_stationary_variability, sample_ddm_params, sample_shared_tau, sample_random_walk, sample_regime_switching
 
 class DiffusionModel(ABC):
     """An interface for running a standardized simulated experiment."""

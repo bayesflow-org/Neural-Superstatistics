@@ -4,7 +4,7 @@ default_settings = {
     "transformer_template_dim": 128,
     "transformer_summary_dim": 32,
     "trainer": {
-        "checkpoint_path": "../checkpoints/optimal_policy",
+        "checkpoint_path": "../../optimal_policy/checkpoints/optimal_policy",
         "max_to_keep": 1,
         "default_lr": 5e-4,
         "memory": False,
