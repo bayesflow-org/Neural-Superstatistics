@@ -160,45 +160,31 @@ class StationaryDiffusion(DiffusionModel):
 
         return self.generator(batch_size, *args, **kwargs)
 
-    def configure(self, raw_dict, transform=True):
+    def configure(self, raw_dict):
         """Configures the output of self.generator for a BayesFlow pipeline.
 
         1. Converts float64 to float32 (for TensorFlow)
         2. Appends a trailing dimensions of 1 to data
-        3. Scale the model parameters
 
         Parameters:
         -----------
         raw_dict  : dict
             A simulation dictionary as returned by ``bayesflow.simulation.GenerativeModel``
-        transform : boolean, optional, default: True
-            An indicator to standardize the parameters. 
 
         Returns:
         --------
         input_dict : dict
             The simulation dictionary configured for ``bayesflow.amortizers.Amortizer``
         """
-        pass
+
         # Extract relevant simulation data, convert to float32, and add extra dimension
-        # theta_t = raw_dict.get("local_prior_draws").astype(np.float32)
-        # scales = raw_dict.get("hyper_prior_draws").astype(np.float32)
-        # rt = raw_dict.get("sim_data").astype(np.float32)[..., None]
+        rt = raw_dict.get("sim_data").astype(np.float32)[..., None]
 
-        # if transform:
-        #     out_dict = dict(
-        #         local_parameters=(theta_t - self.local_prior_means) / self.local_prior_stds,
-        #         hyper_parameters=(scales - self.hyper_prior_mean) / self.hyper_prior_std,
-        #         summary_conditions=rt,
-        #     )
-        # else:
-        #     out_dict = dict(
-        #         local_parameters=theta_t,
-        #         hyper_parameters=scales,
-        #         summary_conditions=rt
-        #     )
+        out_dict = dict(
+            summary_conditions=rt,
+        )
 
-        # return out_dict
+        return out_dict
 
 
 class RandomWalkDiffusion(DiffusionModel):
@@ -340,24 +326,6 @@ class RegimeSwitchingDiffusion(DiffusionModel):
             name="regime_switching_diffusion_model",
         )
 
-        # # Create prior wrapper
-        # self.prior = bf.simulation.TwoLevelPrior(
-        #     hyper_prior_fun=partial(sample_switch_prob, rng=self._rng),
-        #     local_prior_fun=partial(sample_regime_switching, rng=self._rng),
-        # )
-
-        # # Create simulator wrapper
-        # self.likelihood = bf.simulation.Simulator(
-        #     simulator_fun=sample_regime_switching_diffusion_process,
-        # )
-
-        # # Create generative model wrapper. Will generate 3D tensors
-        # self.generator = bf.simulation.TwoLevelGenerativeModel(
-        #     prior=self.prior,
-        #     simulator=self.likelihood,
-        #     name="regime_switching_diffusion_model",
-        # )
-
     def generate(self, batch_size, *args, **kwargs):
         """Wraps the call function of ``bf.simulation.GenerativeModel``.
 
@@ -376,5 +344,28 @@ class RegimeSwitchingDiffusion(DiffusionModel):
 
         return self.generator(batch_size, *args, **kwargs)
 
-    def configure(self, *args, raw_dict):
-        pass
+    def configure(self, raw_dict):
+        """Configures the output of self.generator for a BayesFlow pipeline.
+
+        1. Converts float64 to float32 (for TensorFlow)
+        2. Appends a trailing dimensions of 1 to data
+
+        Parameters:
+        -----------
+        raw_dict  : dict
+            A simulation dictionary as returned by ``bayesflow.simulation.GenerativeModel``
+
+        Returns:
+        --------
+        input_dict : dict
+            The simulation dictionary configured for ``bayesflow.amortizers.Amortizer``
+        """
+
+        # Extract relevant simulation data, convert to float32, and add extra dimension
+        rt = raw_dict.get("sim_data").astype(np.float32)[..., None]
+
+        out_dict = dict(
+            summary_conditions=rt,
+        )
+
+        return out_dict
