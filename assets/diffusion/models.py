@@ -22,7 +22,7 @@ class DiffusionModel(ABC):
         pass
 
 
-class StaticDiffusionModel(DiffusionModel):
+class StaticDiffusion(DiffusionModel):
     """A wrapper for a static Diffusion Decision process."""
 
     def __init__(self, rng=None):
@@ -43,7 +43,7 @@ class StaticDiffusionModel(DiffusionModel):
 
         # Create prior wrapper
         self.prior = bf.simulation.Prior(
-            prior_fun=partial(sample_ddm_params, rng=self._rng),
+            prior_fun=sample_ddm_params,
         )
 
         # Create simulator wrapper
