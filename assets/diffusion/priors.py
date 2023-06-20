@@ -9,9 +9,9 @@ def sample_scale(loc=default_scale_prior_loc, scale=default_scale_prior_scale):
 
     Parameters:
     -----------
-    loc    : list, optional, default: [0, 0, 0]
+    loc    : tuple, optional, default: ``configuration.default_scale_prior_loc``
         The location parameters of the half-normal distribution.
-    scale  : flist, optional, default: [0.1, 0.1, 0.01]
+    scale  : tuple, optional, default: ``configuration.default_scale_prior_scale``
         The scale parameters of the half-normal distribution.
 
     Returns:
@@ -44,16 +44,16 @@ def sample_switch_prob(min=0.0, max=0.2, rng=None):
         rng = np.random.default_rng()
     return rng.uniform(min, max, 2)
 
-def sample_stationary_variability(loc=default_variability_prior_loc, scale=default_variability_prior_scale):
-    """Generates 6 random draws from a half-normal prior over the
+def sample_variability(loc=default_variability_prior_loc, scale=default_variability_prior_scale):
+    """Generates 3 random draws from a half-normal prior over the
     scales of the stationary variability.
 
     Parameters:
     -----------
-    loc          : list, optional, default: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    loc          : tuple, optional, default: ``configuration.default_variability_prior_loc``
         The location of the half-normal distribution.
-    scale        : list, optional, default: [2.5, 2.5, 1.0, 0.2, 0.2, 0.2]
-        The scale of teh half-normal distribution.
+    scale        : tuple, optional, default: ``configuration.default_variability_prior_scale``
+        The scale of the half-normal distribution.
 
     Returns:
     --------
@@ -111,9 +111,9 @@ def sample_random_walk(sigma, num_steps=1320, lower_bounds=default_lower_bounds,
     num_steps       : int, optional, default: 1320
         The number of time steps to take for the random walk. Default
         corresponds to the maximal number of trials in the Optimal Policy Dataset.
-    lower_bounds    : list, optional, default: [0, 0, 0]
+    lower_bounds    : tuple, optional, default: ``configuration.default_lower_bounds``
         The minimum values the parameters can take.
-    upper_bound     : list, optional, default: [8, 6, 1]
+    upper_bound     : tuple, optional, default: ``configuration.default_upper_bounds``
         The maximum values the parameters can take.
     rng             : np.random.Generator or None, default: None
         An optional random number generator to use, if fixing the seed locally.
@@ -139,18 +139,54 @@ def sample_random_walk(sigma, num_steps=1320, lower_bounds=default_lower_bounds,
         )
     return theta_t
 
-def sample_regime_switching(switch_prob, shared_tau, num_steps=1320, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
+def sample_stationary_variability(variability, num_steps=400, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
+    """Generates a single simulation from a stationary variabillty model.
+
+    Parameters:
+    -----------
+    variability      : np.ndarray of shape (3, )
+        The scales of the stationary variabillty process.
+    num_steps       : int, optional, default: 1320
+        The number of time steps to take for stationary variabillty process. Default
+        corresponds to the maximal number of trials in the Optimal Policy Dataset.
+    lower_bounds    : tuple, optional, default: ``configuration.default_lower_bounds``
+        The minimum values the parameters can take.
+    upper_bound     : tuple, optional, default: ``configuration.default_upper_bounds``
+        The maximum values the parameters can take.
+    rng             : np.random.Generator or None, default: None
+        An optional random number generator to use, if fixing the seed locally.
+    Returns:
+    --------
+    theta_t : np.ndarray of shape (num_steps, 3)
+        The array of time-varying parameters
+    """
+
+    # Configure RNG, if not provided
+    if rng is None:
+        rng = np.random.default_rng()
+    # Sample initial parameters
+    theta_t = np.zeros((num_steps, 3))
+    theta_t[0] = sample_ddm_params()
+    # Random variability process for v and a
+    theta_t[1:, :2] = np.clip(
+        rng.normal(loc=theta_t[0, :2], scale=variability[:2], size=(num_steps-1, 2)),
+        lower_bounds[:2], upper_bounds[:2]
+        )
+    # Random variability process for tau
+    theta_t[1:, 2:] = np.clip(
+        rng.uniform(low=theta_t[0, 2] - variability[2]/2, high=theta_t[0, 2] + variability[2]/2, size=(num_steps-1, 1)),
+        lower_bounds[2], upper_bounds[2]
+        )
+    return theta_t
+
+def sample_regime_switching(num_steps=400, points_of_jump=default_points_of_jump, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a regime switching model.
 
     Parameters:
     -----------
-    switch_prob     : np.ndarray of shape (2, )
-        The probability for a jump parameters
-    shared_tau      : float
-        The shared tau parameter. Tau is not allowed to jump.
-    num_steps       : int, optional, default: 1320
-        The number of time steps to take for the random walk. Default
-        corresponds to the maximal number of trials in the Optimal Policy Dataset.
+    num_steps       : int, optional, default: 400
+        The number of time steps to take for the regime swiching model. Default
+        corresponds to the maximal number of time steps in the simulatino study.
     lower_bounds    : list, optional, default: [0, 0]
         The minimum values the parameters can take.
     upper_bound     : list, optional, default: [8, 6]
@@ -167,17 +203,15 @@ def sample_regime_switching(switch_prob, shared_tau, num_steps=1320, lower_bound
     # Configure RNG, if not provided
     if rng is None:
         rng = np.random.default_rng()
+
     # Sample initial parameters
     theta_t = np.zeros((num_steps, 3))
     theta_t[0] = sample_ddm_params()
-    # shared tau parameter
-    theta_t[:, 2] = np.repeat(shared_tau, num_steps)
-    # sample regime switches
-    switch = np.random.rand(num_steps, 2)
-    for p in range(2):
-        for t in range(1, num_steps):
-            if switch[p, t] > switch_prob[p]:
-                theta_t[p, t] = theta_t[p, t-1]
-            else:
-                theta_t[p, t] = rng.uniform(lower_bounds[p], upper_bounds[p])                
+
+    for t in range(1, num_steps):
+        if np.any(np.array(points_of_jump) == t):
+            theta_t[t] = rng.uniform(lower_bounds, upper_bounds)
+        else:
+            theta_t[t] = theta_t[t-1]
+
     return theta_t

@@ -3,8 +3,8 @@ from functools import partial
 import numpy as np
 import bayesflow as bf
 
-from likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process
-from priors import sample_scale, sample_switch_prob, sample_stationary_variability, sample_ddm_params, sample_shared_tau, sample_random_walk, sample_regime_switching
+from likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process, sample_regime_switching_diffusion_process
+from priors import sample_scale, sample_variability, sample_ddm_params, sample_switch_prob, sample_stationary_variability, sample_random_walk, sample_regime_switching
 
 class DiffusionModel(ABC):
     """An interface for running a standardized simulated experiment."""
@@ -25,21 +25,11 @@ class DiffusionModel(ABC):
 class StaticDiffusion(DiffusionModel):
     """A wrapper for a static Diffusion Decision process."""
 
-    def __init__(self, rng=None):
+    def __init__(self):
         """Creates an instance of a static Diffusion Decision Model with given configuration.
         When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
         the method ``self.configure`` should be used.
-
-        Parameters:
-        -----------
-        rng : np.random.Generator or None, default: None
-            An optional random number generator to use, if fixing the seed locally.
         """
-
-        # Store local RNG instance
-        if rng is None:
-            rng = np.random.default_rng()
-        self._rng = rng
 
         # Create prior wrapper
         self.prior = bf.simulation.Prior(
@@ -74,7 +64,7 @@ class StaticDiffusion(DiffusionModel):
             The simulation dictionary configured for ``bayesflow.amortizers.Amortizer``
         """
 
-        return self.generator(batch_size, **kwargs)
+        return self.generator(batch_size, *args, **kwargs)
 
     def configure(self, raw_dict, transform=True):
         """Configures the output of self.generator for a BayesFlow pipeline.
@@ -123,15 +113,92 @@ class StationaryDiffusion(DiffusionModel):
     """A wrapper for a Stationary Diffusion Decision process with
     random variability."""
 
-
     def __init__(self, rng=None):
-        pass
+        """Creates an instance of a Stationary Diffusion Decision Model with given configuration.
+        When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
+        the method ``self.configure`` should be used.
+        """
+
+        # Store local RNG instance
+        if rng is None:
+            rng = np.random.default_rng()
+        self._rng = rng
+
+        # Create prior wrapper
+        self.prior = bf.simulation.TwoLevelPrior(
+            hyper_prior_fun=sample_variability,
+            local_prior_fun=partial(sample_stationary_variability, rng=self._rng),
+        )
+
+        # Create simulator wrapper
+        self.likelihood = bf.simulation.Simulator(
+            simulator_fun=sample_stationary_diffusion_process,
+        )
+
+        # Create generative model wrapper. Will generate 3D tensors
+        self.generator = bf.simulation.TwoLevelGenerativeModel(
+            prior=self.prior,
+            simulator=self.likelihood,
+            name="stationary_diffusion_model",
+        )
 
     def generate(self, batch_size, *args, **kwargs):
-        pass
+        """Wraps the call function of ``bf.simulation.GenerativeModel``.
 
-    def configure(self, raw_dict):
+        Parameters:
+        -----------
+        batch_size : int
+            The number of simulations to generate per training batch
+        **kwargs   : dict, optional, default: {}
+            Optional keyword arguments passed to the call function of ``bf.simulation.GenerativeModel``
+
+        Returns:
+        --------
+        raw_dict   : dict
+            The simulation dictionary configured for ``bayesflow.amortizers.Amortizer``
+        """
+
+        return self.generator(batch_size, *args, **kwargs)
+
+    def configure(self, raw_dict, transform=True):
+        """Configures the output of self.generator for a BayesFlow pipeline.
+
+        1. Converts float64 to float32 (for TensorFlow)
+        2. Appends a trailing dimensions of 1 to data
+        3. Scale the model parameters
+
+        Parameters:
+        -----------
+        raw_dict  : dict
+            A simulation dictionary as returned by ``bayesflow.simulation.GenerativeModel``
+        transform : boolean, optional, default: True
+            An indicator to standardize the parameters. 
+
+        Returns:
+        --------
+        input_dict : dict
+            The simulation dictionary configured for ``bayesflow.amortizers.Amortizer``
+        """
         pass
+        # Extract relevant simulation data, convert to float32, and add extra dimension
+        # theta_t = raw_dict.get("local_prior_draws").astype(np.float32)
+        # scales = raw_dict.get("hyper_prior_draws").astype(np.float32)
+        # rt = raw_dict.get("sim_data").astype(np.float32)[..., None]
+
+        # if transform:
+        #     out_dict = dict(
+        #         local_parameters=(theta_t - self.local_prior_means) / self.local_prior_stds,
+        #         hyper_parameters=(scales - self.hyper_prior_mean) / self.hyper_prior_std,
+        #         summary_conditions=rt,
+        #     )
+        # else:
+        #     out_dict = dict(
+        #         local_parameters=theta_t,
+        #         hyper_parameters=scales,
+        #         summary_conditions=rt
+        #     )
+
+        # return out_dict
 
 
 class RandomWalkDiffusion(DiffusionModel):
@@ -237,44 +304,77 @@ class RandomWalkDiffusion(DiffusionModel):
 
 
 class RegimeSwitchingDiffusion(DiffusionModel):
-    # """A wrapper for a Regime Switching Diffusion Decision process."""
+    """A wrapper for a Regime Switching Diffusion Decision process with
+    sudden uniformly distributed jumps"""
 
-    # def __init__(self, rng=None):
-    #     """Creates an instance of the Regime Switching Diffusion Decision model with given configuration.
-    #     When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
-    #     the method ``self.configure`` should be used.
+    def __init__(self, rng=None):
+        """Creates an instance of the Regime Switching Diffusion Decision model with given configuration.
+        When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
+        the method ``self.configure`` should be used.
 
-    #     Parameters:
-    #     -----------
-    #     rng : np.random.Generator or None, default: None
-    #         An optional random number generator to use, if fixing the seed locally.
-    #     """
+        Parameters:
+        -----------
+        rng : np.random.Generator or None, default: None
+            An optional random number generator to use, if fixing the seed locally.
+        """
 
-    #     # Store local RNG instance
-    #     if rng is None:
-    #         rng = np.random.default_rng()
-    #     self._rng = rng
+        # Store local RNG instance
+        if rng is None:
+            rng = np.random.default_rng()
+        self._rng = rng
 
-    #     # Create prior wrapper
-    #     self.prior = bf.simulation.TwoLevelPrior(
-    #         hyper_prior_fun=partial(sample_switch_prob, rng=self._rng),
-    #         local_prior_fun=partial(sample, rng=self._rng),
-    #     )
+        # Create prior wrapper
+        self.prior = bf.simulation.Prior(
+            prior_fun=partial(sample_regime_switching, rng=self._rng),
+        )
 
-    #     # Create simulator wrapper
-    #     self.likelihood = bf.simulation.Simulator(
-    #         simulator_fun=sample_random_walk_diffusion_process,
-    #     )
+        # Create simulator wrapper
+        self.likelihood = bf.simulation.Simulator(
+            simulator_fun=sample_regime_switching_diffusion_process,
+        )
 
-    #     # Create generative model wrapper. Will generate 3D tensors
-    #     self.generator = bf.simulation.TwoLevelGenerativeModel(
-    #         prior=self.prior,
-    #         simulator=self.likelihood,
-    #         name="random_walk_diffusion_model",
-    #     )
+        # Create generative model wrapper. Will generate 3D tensors
+        self.generator = bf.simulation.GenerativeModel(
+            prior=self.prior,
+            simulator=self.likelihood,
+            name="regime_switching_diffusion_model",
+        )
+
+        # # Create prior wrapper
+        # self.prior = bf.simulation.TwoLevelPrior(
+        #     hyper_prior_fun=partial(sample_switch_prob, rng=self._rng),
+        #     local_prior_fun=partial(sample_regime_switching, rng=self._rng),
+        # )
+
+        # # Create simulator wrapper
+        # self.likelihood = bf.simulation.Simulator(
+        #     simulator_fun=sample_regime_switching_diffusion_process,
+        # )
+
+        # # Create generative model wrapper. Will generate 3D tensors
+        # self.generator = bf.simulation.TwoLevelGenerativeModel(
+        #     prior=self.prior,
+        #     simulator=self.likelihood,
+        #     name="regime_switching_diffusion_model",
+        # )
 
     def generate(self, batch_size, *args, **kwargs):
-        pass
+        """Wraps the call function of ``bf.simulation.GenerativeModel``.
+
+        Parameters:
+        -----------
+        batch_size : int
+            The number of simulations to generate per training batch
+        **kwargs   : dict, optional, default: {}
+            Optional keyword arguments passed to the call function of ``bf.simulation.GenerativeModel``
+
+        Returns:
+        --------
+        raw_dict   : dict
+            The simulation dictionary configured for ``bayesflow.amortizers.Amortizer``
+        """
+
+        return self.generator(batch_size, *args, **kwargs)
 
     def configure(self, *args, raw_dict):
         pass
