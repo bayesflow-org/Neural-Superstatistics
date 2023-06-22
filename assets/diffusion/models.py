@@ -78,7 +78,7 @@ class StaticDiffusion(DiffusionModel):
         raw_dict  : dict
             A simulation dictionary as returned by ``bayesflow.simulation.GenerativeModel``
         transform : boolean, optional, default: True
-            An indicator to standardize the parameters. 
+            An indicator to standardize the parameters.
 
         Returns:
         --------
@@ -191,7 +191,7 @@ class RandomWalkDiffusion(DiffusionModel):
     """A wrapper for a Non-Stationary Diffusion Decision process with
     a Gaussian random walk transition model."""
 
-    def __init__(self, rng=None):
+    def __init__(self, rng=None, *args, **kwargs):
         """Creates an instance of the Non-Stationary Diffusion Decision model with given configuration.
         When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
         the method ``self.configure`` should be used.
@@ -215,7 +215,7 @@ class RandomWalkDiffusion(DiffusionModel):
         # Create prior wrapper
         self.prior = bf.simulation.TwoLevelPrior(
             hyper_prior_fun=sample_scale,
-            local_prior_fun=partial(sample_random_walk, rng=self._rng),
+            local_prior_fun=partial(sample_random_walk, num_steps=kwargs.get('default_num_steps'), rng=self._rng),
         )
 
         # Create simulator wrapper
@@ -260,7 +260,7 @@ class RandomWalkDiffusion(DiffusionModel):
         raw_dict  : dict
             A simulation dictionary as returned by ``bayesflow.simulation.TwoLevelGenerativeModel``
         transform : boolean, optional, default: True
-            An indicator to standardize the parameter and log-transform the data samples. 
+            An indicator to standardize the parameter and log-transform the data samples.
 
         Returns:
         --------
