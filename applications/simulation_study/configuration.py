@@ -6,7 +6,7 @@ default_settings = {
     "trainer": {
         "checkpoint_path": "../checkpoints/simulation_study",
         "max_to_keep": 1,
-        "default_lr": 5e-4,
+        "default_lr": 1e-4,
         "memory": False,
     },
     "local_amortizer_settings": {
