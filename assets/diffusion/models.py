@@ -4,7 +4,7 @@ import numpy as np
 import bayesflow as bf
 
 from likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process, sample_regime_switching_diffusion_process
-from priors import sample_scale, sample_variability, sample_ddm_params, sample_switch_prob, sample_stationary_variability, sample_random_walk, sample_regime_switching
+from priors import sample_scale, sample_variability, sample_ddm_params, sample_random_walk, sample_regime_switching
 
 class DiffusionModel(ABC):
     """An interface for running a standardized simulated experiment."""
@@ -113,21 +113,15 @@ class StationaryDiffusion(DiffusionModel):
     """A wrapper for a Stationary Diffusion Decision process with
     random variability."""
 
-    def __init__(self, rng=None):
+    def __init__(self):
         """Creates an instance of a Stationary Diffusion Decision Model with given configuration.
         When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
         the method ``self.configure`` should be used.
         """
 
-        # Store local RNG instance
-        if rng is None:
-            rng = np.random.default_rng()
-        self._rng = rng
-
         # Create prior wrapper
-        self.prior = bf.simulation.TwoLevelPrior(
-            hyper_prior_fun=sample_variability,
-            local_prior_fun=partial(sample_stationary_variability, rng=self._rng),
+        self.prior = bf.simulation.Prior(
+            prior_fun=sample_variability
         )
 
         # Create simulator wrapper
@@ -136,7 +130,7 @@ class StationaryDiffusion(DiffusionModel):
         )
 
         # Create generative model wrapper. Will generate 3D tensors
-        self.generator = bf.simulation.TwoLevelGenerativeModel(
+        self.generator = bf.simulation.GenerativeModel(
             prior=self.prior,
             simulator=self.likelihood,
             name="stationary_diffusion_model",
@@ -260,7 +254,7 @@ class RandomWalkDiffusion(DiffusionModel):
         raw_dict  : dict
             A simulation dictionary as returned by ``bayesflow.simulation.TwoLevelGenerativeModel``
         transform : boolean, optional, default: True
-            An indicator to standardize the parameter and log-transform the data samples.
+            An indicator to standardize the parameter and log-transform the data samples. 
 
         Returns:
         --------

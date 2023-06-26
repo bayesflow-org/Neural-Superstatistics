@@ -24,8 +24,8 @@ default_ddm_params_prior_loc = (0.0, 0.0, 0.0)
 default_ddm_params_prior_scale = (2.5, 2.5, 1.0)
 default_scale_prior_loc = (0.0, 0.0, 0.0)
 default_scale_prior_scale = (0.1, 0.1, 0.1)
-default_variability_prior_loc = (0.0, 0.0, 0.0)
-default_variability_prior_scale = (1.0, 1.0, 1.0)
+default_variability_prior_loc = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+default_variability_prior_scale = (2.5, 2.5, 1.0, 1.0, 1.0, 1.0)
 default_points_of_jump = (100, 200, 300)
 
 default_num_steps = {'default_num_steps': 400}

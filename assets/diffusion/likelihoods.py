@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 
-from priors import sample_ddm_params
+from configuration import default_lower_bounds, default_upper_bounds
 
 @njit
 def _sample_diffusion_trial(v, a, tau, beta=0.5, dt=0.001, s=1.0, max_iter=1e5):
@@ -81,18 +81,24 @@ def sample_static_diffusion_process(theta, num_steps=400, beta=0.5, dt=0.001, s=
     return rt
 
 @njit
-def sample_stationary_diffusion_process(theta_t, beta=0.5, dt=0.001, s=1.0, max_iter=1e5):
+def sample_stationary_diffusion_process(theta, num_steps=400, beta=0.5, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, dt=0.001, s=1.0, max_iter=1e5):
     """Generates a single simulation from a Stationary
     Diffusion Decision process with random variability.
 
     Parameters:
     -----------
-    theta_t : np.ndarray of shape (theta_t, 3)
-        The trajectory of the 3 latent DDM parameters, v, a, tau.
-        corresponds to the maximal number of trials in the Optimal Policy Dataset.
+    theta : np.ndarray of shape (6, )
+        The 6 latent DDM parameters, v, a, tau, v_s, a_s, tau_s.
+    num_steps : int, optional, default: 400
+        The number of time steps to take for the static diffusion process. Default
+        corresponds to the number of time steps in the simulation study.
     beta     : float, optional, default: 0.5
         The starting point parameter. The default corresponds to
         no a priori bias.
+    lower_bounds    : tuple, optional, default: ``configuration.default_lower_bounds``
+        The minimum values the parameters can take.
+    upper_bound     : tuple, optional, default: ``configuration.default_upper_bounds``
+        The maximum values the parameters can take.
     dt       : float, optional, default: 0.001
         Time resolution of the process. Default corresponds to
         a precision of 1 millisecond.
@@ -109,7 +115,18 @@ def sample_stationary_diffusion_process(theta_t, beta=0.5, dt=0.001, s=1.0, max_
         Reaching the lower boundary results in negative rt's.
     """
 
-    num_steps = theta_t.shape[0]
+    theta_t = np.zeros((400, 3))
+
+    theta_t[:, 0] = np.minimum(
+        np.maximum(np.random.normal(loc=theta[0], scale=theta[3], size=num_steps),
+                   lower_bounds[0]), upper_bounds[0])
+    theta_t[:, 1] = np.minimum(
+        np.maximum(np.random.normal(loc=theta[1], scale=theta[4], size=num_steps),
+                   lower_bounds[1]), upper_bounds[1])
+    theta_t[:, 2] = np.minimum(
+        np.maximum(np.random.uniform(low=theta[2] - theta[5]/2, high=theta[2] + theta[5]/2, size=num_steps),
+                   lower_bounds[2]), upper_bounds[2])
+
     rt = np.zeros(num_steps)
     for t in range(num_steps):
         rt[t] = _sample_diffusion_trial(
