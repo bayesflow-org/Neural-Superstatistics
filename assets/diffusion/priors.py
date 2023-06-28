@@ -28,9 +28,9 @@ def sample_ddm_params(loc=default_ddm_params_prior_loc, scale=default_ddm_params
 
     Parameters:
     -----------
-    loc        : list, optional, default: [0.0, 0.0, 0.0]
+    loc        : list, optional, default: ``configuration.default_ddm_params_prior_loc``
         The shapes of the half-normal distribution.
-    scale      : list, optional, default: [2.5, 2.5, 1.0]
+    scale      : list, optional, default: ``configuration.default_ddm_params_prior_scale``
         The scales of the half-normal distribution.
 
     Returns:
@@ -106,9 +106,9 @@ def sample_regime_switching(num_steps=400, points_of_jump=default_points_of_jump
     num_steps       : int, optional, default: 400
         The number of time steps to take for the regime swiching model. Default
         corresponds to the maximal number of time steps in the simulatino study.
-    lower_bounds    : list, optional, default: [0, 0]
+    lower_bounds    : tuple, optional, default: ``configuration.default_lower_bounds``
         The minimum values the parameters can take.
-    upper_bound     : list, optional, default: [8, 6]
+    upper_bound     : tuple, optional, default: ``configuration.default_upper_bounds``
         The maximum values the parameters can take.
     rng             : np.random.Generator or None, default: None
         An optional random number generator to use, if fixing the seed locally.
