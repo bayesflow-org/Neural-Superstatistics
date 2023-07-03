@@ -26,7 +26,7 @@ def sample_scale(alpha=1.0, beta=25.0, rng=None):
     if rng is None:
         rng = np.random.default_rng()
 
-    return rng.beta(alpha=alpha, beta=beta, size=3)
+    return rng.beta(a=alpha, b=beta, size=3)
 
 def sample_ddm_params(shape=(5.0, 4.0, 1.5), scale=(1/3, 1/3, 1/5), rng=None):
     """Generates random draws from a gamma prior over the

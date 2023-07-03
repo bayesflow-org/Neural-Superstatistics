@@ -1,12 +1,11 @@
 default_settings = {
     "lstm1_hidden_units": 512,
-    "lstm2_hidden_units": 128,
-    "transformer_template_dim": 128,
-    "transformer_summary_dim": 32,
+    "lstm2_hidden_units": 256,
+    "lstm3_hidden_units": 128,
     "trainer": {
         "checkpoint_path": "../checkpoints/stan_benchmark",
         "max_to_keep": 1,
-        "default_lr": 1e-4,
+        "default_lr": 5e-4,
         "memory": False,
     },
     "local_amortizer_settings": {

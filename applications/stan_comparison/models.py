@@ -137,7 +137,7 @@ class RandomWalkDiffusion(DiffusionModel):
 
         # Create prior wrapper
         self.prior = bf.simulation.TwoLevelPrior(
-            hyper_prior_fun=sample_scale,
+            hyper_prior_fun=partial(sample_scale, rng=self._rng),
             local_prior_fun=partial(sample_random_walk, rng=self._rng),
         )
 
