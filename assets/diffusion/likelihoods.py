@@ -115,7 +115,7 @@ def sample_stationary_diffusion_process(theta, num_steps=400, beta=0.5, lower_bo
         Reaching the lower boundary results in negative rt's.
     """
 
-    theta_t = np.zeros((400, 3))
+    theta_t = np.zeros((num_steps, 3))
 
     theta_t[:, 0] = np.minimum(
         np.maximum(np.random.normal(loc=theta[0], scale=theta[3], size=num_steps),

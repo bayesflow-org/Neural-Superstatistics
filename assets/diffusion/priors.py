@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.stats import halfnorm
 
-from configuration import *
+from configuration import default_priors, default_lower_bounds, default_upper_bounds, default_points_of_jump
 
-def sample_scale(loc=default_scale_prior_loc, scale=default_scale_prior_scale):
+def sample_scale(loc=default_priors["scale_loc"], scale=default_priors["scale_scale"]):
     """Generates 3 random draws from a half-normal prior over the
     scale of the random walk.
 
@@ -22,7 +22,7 @@ def sample_scale(loc=default_scale_prior_loc, scale=default_scale_prior_scale):
 
     return halfnorm.rvs(loc=loc, scale=scale)
 
-def sample_ddm_params(loc=default_ddm_params_prior_loc, scale=default_ddm_params_prior_scale):
+def sample_ddm_params(loc=default_priors["ddm_loc"], scale=default_priors["ddm_scale"]):
     """Generates random draws from a half-normal prior over the
     diffusion decision parameters, v, a, tau.
 
@@ -41,7 +41,7 @@ def sample_ddm_params(loc=default_ddm_params_prior_loc, scale=default_ddm_params
 
     return halfnorm.rvs(loc=loc, scale=scale)
 
-def sample_variability(loc=default_variability_prior_loc, scale=default_variability_prior_scale):
+def sample_variability(loc=default_priors["variability_loc"], scale=default_priors["variability_scale"]):
     """Generates 3 random draws from a half-normal prior over the
     scales of the stationary variability.
 

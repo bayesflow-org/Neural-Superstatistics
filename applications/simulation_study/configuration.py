@@ -18,14 +18,17 @@ default_settings = {
         "coupling_design": 'interleaved'
     },
 }
+
+default_priors = {
+    "ddm_loc": (0.0, 0.0, 0.0),
+    "ddm_scale": (2.5, 2.5, 1.0),
+    "scale_loc": (0.0, 0.0, 0.0),
+    "scale_scale": (0.1, 0.1, 0.1),
+    "variability_loc": (0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+    "variability_scale": (2.5, 2.5, 1.0, 1.0, 1.0, 1.0)
+}
+
 default_lower_bounds = (0.0, 0.0, 0.0)
 default_upper_bounds = (8.0, 6.0, 4.0)
-default_ddm_params_prior_loc = (0.0, 0.0, 0.0)
-default_ddm_params_prior_scale = (2.5, 2.5, 1.0)
-default_scale_prior_loc = (0.0, 0.0, 0.0)
-default_scale_prior_scale = (0.1, 0.1, 0.1)
-default_variability_prior_loc = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-default_variability_prior_scale = (2.5, 2.5, 1.0, 1.0, 1.0, 1.0)
 default_points_of_jump = (100, 200, 300)
-
 default_num_steps = {'default_num_steps': 400}
