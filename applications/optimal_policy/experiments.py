@@ -4,7 +4,6 @@ import tensorflow as tf
 
 from configuration import default_settings
 
-
 class Experiment(ABC):
     """An interface for running a standardized simulated experiment."""
 
@@ -34,16 +33,15 @@ class RandomWalkDiffusionExperiment(Experiment):
         model   : an instance of models.RandomWalkDiffusion
             The model wrapper, should include a callable attribute ``generator`` and a method
             ``configure()``
-        # TODO:
-        # config  : dict, optional, default: ``configuration.default_settings``
-        #     A configuration dictionary with the following keys:
-        #     ``lstm1_hidden_units``        - The dimensions of the first LSTM of the first summary net
-        #     ``lstm2_hidden_units``        - The dimensions of the second LSTM of the first summary net
-        #     ``transformer_hidden_units``  - The dimensions of the transformer of the second summary net
-        #     ``trainer``                   - The settings for the ``bf.trainers.Trainer``, not icnluding
-        #         the ``amortizer``, ``generative_model``, and ``configurator`` keys,
-        #         as these will be provided internaly by the Experiment instance
-        # """
+        config  : dict, optional, default: ``configuration.default_settings``
+            A configuration dictionary with the following keys:
+            ``lstm1_hidden_units``        - The dimensions of the first LSTM of the first summary net
+            ``lstm2_hidden_units``        - The dimensions of the second LSTM of the first summary net
+            ``lstm3_hidden_units``        - The dimensions of the third LSTM of the second summary net
+            ``trainer``                   - The settings for the ``bf.trainers.Trainer``, not icnluding   
+                the ``amortizer``, ``generative_model``, and ``configurator`` keys,
+                as these will be provided internaly by the Experiment instance
+        """
 
         self.model = model
 
@@ -63,11 +61,13 @@ class RandomWalkDiffusionExperiment(Experiment):
                         ),
                     ]
                 ),
-                bf.networks.TimeSeriesTransformer(
-                    config["lstm2_hidden_units"],
-                    template_dim=config["transformer_template_dim"],
-                    summary_dim=config["transformer_summary_dim"]
-                    ),
+                tf.keras.Sequential(
+                    [
+                        tf.keras.layers.LSTM(
+                            config["lstm3_hidden_units"]
+                        )
+                    ]
+                )
             ]
         )
 
@@ -84,8 +84,8 @@ class RandomWalkDiffusionExperiment(Experiment):
             ))
 
         self.amortizer = bf.amortizers.TwoLevelAmortizedPosterior(
-            self.local_net, 
-            self.global_net, 
+            self.local_net,
+            self.global_net,
             self.summary_network
             )
 

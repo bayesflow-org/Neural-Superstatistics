@@ -17,7 +17,6 @@ default_settings = {
         "coupling_design": 'interleaved'
     },
 }
-
 default_priors = {
     "ddm_shape": (5.0, 4.0, 1.5),
     "ddm_scale": (1/3, 1/3, 1/5),
