@@ -3,53 +3,67 @@ from scipy.stats import halfnorm
 
 from configuration import default_priors, default_lower_bounds, default_upper_bounds, default_points_of_jump
 
-def sample_scale(loc=default_priors["scale_loc"], scale=default_priors["scale_scale"]):
-    """Generates 3 random draws from a half-normal prior over the
+def sample_scale(alpha=default_priors["scale_alpha"], beta=default_priors["scale_beta"], rng=None):
+    """Generates 3 random draws from a beta prior over the
     scale of the random walk.
 
     Parameters:
     -----------
-    loc    : tuple, optional, default: ``configuration.default_scale_prior_loc``
-        The location parameters of the half-normal distribution.
-    scale  : tuple, optional, default: ``configuration.default_scale_prior_scale``
-        The scale parameters of the half-normal distribution.
-
+    alpha : float, optional, default: ``configuration.default_priors["scale_alpha"]``
+        The alpha parameter of the beta distribution.
+        Default corresponds to the prior specification used with Stan.
+    beta  : float, optional, default: ``configuration.default_priors["scale_beta"]``
+        The beta parameter of the beta distribution.
+        Default corresponds to the prior specification used with Stan.
+    rng   : np.random.Generator or None, default: None
+        An optional random number generator to use, if fixing the seed locally.
     Returns:
     --------
     scales : np.array
         The randomly drawn scale parameters.
     """
 
-    return halfnorm.rvs(loc=loc, scale=scale)
+    # Configure RNG, if not provided
+    if rng is None:
+        rng = np.random.default_rng()
 
-def sample_ddm_params(loc=default_priors["ddm_loc"], scale=default_priors["ddm_scale"]):
-    """Generates random draws from a half-normal prior over the
+    return rng.beta(a=alpha, b=beta, size=3)
+
+def sample_ddm_params(shape=default_priors["ddm_shape"], scale=default_priors["ddm_scale"], rng=None):
+    """Generates random draws from a gamma prior over the
     diffusion decision parameters, v, a, tau.
 
     Parameters:
     -----------
-    loc        : list, optional, default: ``configuration.default_ddm_params_prior_loc``
-        The shapes of the half-normal distribution.
-    scale      : list, optional, default: ``configuration.default_ddm_params_prior_scale``
-        The scales of the half-normal distribution.
-
+    shape      : tuple, optional, default: ``configuration.default_priors["ddm_shape"]``
+        The shapes of the gamma distribution.
+        Default corresponds to the prior specification used with Stan.
+    scale      : tuple, optional, default: ``configuration.default_priors["ddm_scale"]``
+        The scales of the gamma distribution.
+        Default corresponds to the prior specification used with Stan.
+    rng        : np.random.Generator or None, default: None
+        An optional random number generator to use, if fixing the seed locally.
     Returns:
     --------
     ddm_params : np.array
         The randomly drawn DDM parameters, v, a, tau.
     """
 
-    return halfnorm.rvs(loc=loc, scale=scale)
+    # Configure RNG, if not provided
+    if rng is None:
+        rng = np.random.default_rng()
+
+    return rng.gamma(shape=shape, scale=scale)
 
 def sample_variability(loc=default_priors["variability_loc"], scale=default_priors["variability_scale"]):
-    """Generates 3 random draws from a half-normal prior over the
+    """Generates 6 random draws from a half-normal prior over the
     scales of the stationary variability.
 
     Parameters:
     -----------
-    loc          : tuple, optional, default: ``configuration.default_variability_prior_loc``
+    loc          : tuple, optional, default: ``configuration.default_priors["variability_loc"]``
         The location of the half-normal distribution.
-    scale        : tuple, optional, default: ``configuration.default_variability_prior_scale``
+    scale        : tuple, optional, default: ``configuration.default_priors["variability_scale"]``
         The scale of the half-normal distribution.
 
     Returns:
@@ -58,7 +72,10 @@ def sample_variability(loc=default_priors["variability_loc"], scale=default_prio
         The randomly drawn variability parameters.
     """
 
-    return halfnorm.rvs(loc=loc, scale=scale)
+    ddm_params = sample_ddm_params()
+    variabilities = halfnorm.rvs(loc=loc, scale=scale)
+
+    return np.concatenate([ddm_params, variabilities])
 
 def sample_random_walk(sigma, num_steps=1320, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a random walk transition model.

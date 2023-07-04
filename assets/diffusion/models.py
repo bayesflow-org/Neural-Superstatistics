@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from functools import partial
 import numpy as np
 import bayesflow as bf
+from scipy.stats import beta
 
 from likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process, sample_regime_switching_diffusion_process
 from priors import sample_scale, sample_variability, sample_ddm_params, sample_random_walk, sample_regime_switching
@@ -66,7 +67,7 @@ class StaticDiffusion(DiffusionModel):
 
         return self.generator(batch_size, *args, **kwargs)
 
-    def configure(self, raw_dict, transform=True):
+    def configure(self, raw_dict, transform=False):
         """Configures the output of self.generator for a BayesFlow pipeline.
 
         1. Converts float64 to float32 (for TensorFlow)
@@ -196,10 +197,10 @@ class RandomWalkDiffusion(DiffusionModel):
             An optional random number generator to use, if fixing the seed locally.
         """
 
-        self.hyper_prior_mean = 0.04
-        self.hyper_prior_std = 0.04
-        self.local_prior_means = np.array([1.8, 1.5, 0.4])
-        self.local_prior_stds = np.array([1.2, 1.0, 0.3])
+        self.hyper_prior_mean = beta(a=1, b=25).mean()
+        self.hyper_prior_std = beta(a=1, b=25).std()
+        self.local_prior_means = np.array([1.75, 1.7, 1])
+        self.local_prior_stds = np.array([1.5, 1.25, 1])
 
         # Store local RNG instance
         if rng is None:
