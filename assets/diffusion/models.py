@@ -4,8 +4,8 @@ import numpy as np
 import bayesflow as bf
 from scipy.stats import beta
 
-from likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process, sample_regime_switching_diffusion_process
-from priors import sample_scale, sample_variability, sample_ddm_params, sample_random_walk, sample_regime_switching
+from diffusion.likelihoods import sample_static_diffusion_process, sample_stationary_diffusion_process, sample_random_walk_diffusion_process, sample_regime_switching_diffusion_process
+from diffusion.priors import sample_scale, sample_variability, sample_ddm_params, sample_random_walk, sample_regime_switching
 
 class DiffusionModel(ABC):
     """An interface for running a standardized simulated experiment."""
@@ -186,7 +186,7 @@ class RandomWalkDiffusion(DiffusionModel):
     """A wrapper for a Non-Stationary Diffusion Decision process with
     a Gaussian random walk transition model."""
 
-    def __init__(self, rng=None, *args, **kwargs):
+    def __init__(self, num_steps=1320, rng=None):
         """Creates an instance of the Non-Stationary Diffusion Decision model with given configuration.
         When used in a BayesFlow pipeline, only the attribute ``self.generator`` and
         the method ``self.configure`` should be used.
@@ -210,7 +210,7 @@ class RandomWalkDiffusion(DiffusionModel):
         # Create prior wrapper
         self.prior = bf.simulation.TwoLevelPrior(
             hyper_prior_fun=sample_scale,
-            local_prior_fun=partial(sample_random_walk, num_steps=kwargs.get('default_num_steps'), rng=self._rng),
+            local_prior_fun=partial(sample_random_walk, num_steps=num_steps, rng=self._rng),
         )
 
         # Create simulator wrapper
