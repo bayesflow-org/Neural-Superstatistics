@@ -29,5 +29,4 @@ default_priors = {
 
 default_lower_bounds = (0.0, 0.0, 0.0)
 default_upper_bounds = (8.0, 6.0, 4.0)
-default_points_of_jump = (100, 200, 300)
-default_num_steps = {'default_num_steps': 1320}
+default_num_steps = 1320
