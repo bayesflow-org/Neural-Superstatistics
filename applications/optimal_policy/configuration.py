@@ -2,7 +2,6 @@ default_settings = {
     "lstm1_hidden_units": 512,
     "lstm2_hidden_units": 256,
     "lstm3_hidden_units": 128,
-    "transformer_summary_dim": 32,
     "trainer": {
         "checkpoint_path": "../checkpoints/optimal_policy",
         "max_to_keep": 1,
@@ -28,6 +27,6 @@ default_priors = {
 }
 
 default_lower_bounds = (0.0, 0.0, 0.0)
-default_upper_bounds = (8.0, 6.0, 4.0)
+default_upper_bounds = (6.0, 4.0, 2.0)
 default_num_steps = 1320
 default_points_of_jump = (100, 200, 300)
