@@ -33,6 +33,12 @@ tb_subset %<>%
                      labels = seq(1, length(unique(id)))),
          id = as.numeric(as.character(id)))
 
+summary <- tb_subset %>% 
+  group_by(trial_condition,
+           feedback) %>% 
+  summarise(n_subs = length(unique(id)),
+            max_trial = max(trial))
+
 write_csv(tb_subset, "optimal_policy_data.csv")
 
 
