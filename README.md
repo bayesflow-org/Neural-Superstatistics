@@ -32,11 +32,11 @@ All applications are structured as self-contained Jupyter notebooks, which are d
 
 ### Simulation studies:
 
-- [Simulation study](applications/simulation_study/notebooks/simulation_study_experiment.ipynb): Assessment of the parameter recovery performance of a non-stationary DDM in four different simulation scenarios.
+- [Simulation study](applications/simulation_study/notebook/simulation_study_experiment.ipynb): Assessment of the parameter recovery performance of a non-stationary DDM in four different simulation scenarios.
 
 ### Human data applications:
 
-- [Optimal policy](applications/optimal_policy/notebooks/optimal_policy_experiment.ipynb): Fitting a non-stationary DDM to data from a standard random-dot motion task.
+- [Optimal policy](applications/optimal_policy/notebook/optimal_policy_experiment.ipynb): Fitting a non-stationary DDM to data from a standard random-dot motion task.
 - [Lexical decision](applications/lexical_decision/): Fitting a non-stationary DDM to data from a lexical decision task.
 
 ## Parameter recovery
