@@ -37,7 +37,7 @@ All applications are structured as self-contained Jupyter notebooks, which are d
 ### Human data applications:
 
 - [Optimal policy](applications/optimal_policy/notebook/optimal_policy_experiment.ipynb): Fitting a non-stationary DDM to data from a standard random-dot motion task.
-- [Lexical decision](applications/lexical_decision/): Fitting a non-stationary DDM to data from a lexical decision task.
+- [Lexical decision](applications/lexical_decision/notebooks): Fitting a non-stationary DDM to data from a lexical decision task.
 
 ## Parameter recovery
 
