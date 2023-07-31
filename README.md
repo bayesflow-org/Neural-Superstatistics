@@ -41,7 +41,7 @@ All applications are structured as self-contained Jupyter notebooks, which are d
 
 ## Parameter recovery
 
-The following animation shows the parameter recovery performance of the GP-DDM model over all 3200 time steps.
+The following animation shows the parameter recovery performance of the a Gaussian Process DDM over 3200 time steps.
 
 ![](param_recovery_animation.gif)
 
