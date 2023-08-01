@@ -3,7 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-
+simulation_study/data/
+checkpoints/
 *.DS_Store
 raw_data/
 data/
