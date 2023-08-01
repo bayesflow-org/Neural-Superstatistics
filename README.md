@@ -4,7 +4,7 @@ This repository contains the code for running the experiments and reproducing al
 
 The details of the method are described in our paper:
 
-Schumacher, L., Bürkner, P. C., Voss, A., Köthe, U., & Radev, S. T. (2023). 
+Schumacher, L., Bürkner, P. C., Voss, A., Köthe, U., & Radev, S. T. (2022). 
 Neural Superstatistics for Bayesian Estimation of Dynamic Cognitive Models
 <em>arXiv preprint arXiv:2211.13165</em>, available for free at: https://arxiv.org/abs/2211.13165.
 
