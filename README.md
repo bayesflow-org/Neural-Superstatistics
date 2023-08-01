@@ -34,7 +34,7 @@ All applications are structured as self-contained Jupyter notebooks, which are d
 ### Benchmark studies:
 
 - [Bayesloop benchmark](applications/coal_mining/notebooks/bayesloop_benchmark.ipynb): Comparison of our neural estimation method with the Bayesloop method which specializes on estimating time-varying parameters in low-dimensional problems.
-- [Stan benchmark](applications/stan_comparison/notebooks/stan_benchmark.ipynb): Comparison of our neural estimation method with HMC-MCMC as aimplemented in Stan.
+- [Stan benchmark](applications/stan_comparison/notebooks/stan_benchmark.ipynb): Comparison of our neural estimation method with HMC-MCMC as implemented in Stan.
 
 ### Simulation studies:
 
