@@ -8,7 +8,7 @@ checkpoints/
 *.DS_Store
 raw_data/
 data/
-plots/*
+simulation_study/plots/*
 
 
 # C extensions
