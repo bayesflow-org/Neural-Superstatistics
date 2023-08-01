@@ -4,11 +4,13 @@ __pycache__/
 *$py.class
 
 applications/simulation_study/data/*
+!applications/simulation_study/data/.gitkeep
 checkpoints/
 *.DS_Store
 raw_data/
 data/
 applications/simulation_study/plots/*
+!applications/simulation_study/plots/.gitkeep
 
 
 # C extensions
