@@ -1,6 +1,6 @@
 # Neural Superstatistics
 
-This repository contains the code for running the experiments and reproducing all results reported in our paper [Neural Superstatistics for Bayesian Estimation of Dynamic Cognitive Models](https://arxiv.org/abs/2211.13165). We propose to augment mechanistic cognitive models with a temporal dimension and estimate the resulting dynamics from a superstatistics perspective.
+This repository contains the code for running the experiments and reproducing all results reported in our paper [Neural Superstatistics for Bayesian Estimation of Dynamic Cognitive Models](https://arxiv.org/abs/2211.13165). We employ the superstatistics perspective to augment mechanistic cognitive models with a temporal dimension and perform amortized estimation of the resulting dynamics.
 
 The details of the method are described in our paper:
 
@@ -21,29 +21,29 @@ The code depends on the [BayesFlow](https://github.com/stefanradev93/BayesFlow) 
 }
 ```
 
-## [applications](applications)
+## Estimating time-varying parameters
+
+The following animation illustrates parameter estimation of a drift-diffusion model (DDM) with time-varying parameters over 3200 time steps:
+
+![](param_recovery_animation.gif)
+
+## [Applications](applications)
 
 All applications are structured as self-contained Jupyter notebooks, which are detailed below.
 
 ### Benchmark studies:
 
-- [Bayesloop benchmark](applications/coal_mining/notebooks/bayesloop_benchmark.ipynb): Comparison of our neural estimation method with the Bayesloop method, which is based on grid approximation.
-- [Stan benchmark](applications/stan_comparison/notebooks/stan_benchmark.ipynb): Comparison of our neural estimation method with the HMC-based estimaton method Stan.
+- [Bayesloop benchmark](applications/coal_mining/notebooks/bayesloop_benchmark.ipynb): Comparison of our neural estimation method with the Bayesloop method which specializes on estimating time-varying parameters in low-dimensional problems.
+- [Stan benchmark](applications/stan_comparison/notebooks/stan_benchmark.ipynb): Comparison of our neural estimation method with HMC-MCMC as aimplemented in Stan.
 
 ### Simulation studies:
 
-- [Simulation study](applications/simulation_study/notebook/simulation_study_experiment.ipynb): Assessment of the parameter recovery performance of a non-stationary DDM in four different simulation scenarios.
+- [Simulation study](applications/simulation_study/notebook/simulation_study_experiment.ipynb): Assessment of the parameter recovery performance of a non-stationary drift-diffusion model (DDM) in four different simulation scenarios.
 
 ### Human data applications:
 
-- [Optimal policy](applications/optimal_policy/notebook/optimal_policy_experiment.ipynb): Fitting a non-stationary DDM to data from a standard random-dot motion task.
-- [Lexical decision](applications/lexical_decision/notebooks): Fitting a non-stationary DDM to data from a lexical decision task.
-
-## Parameter recovery
-
-The following animation shows the parameter recovery performance of the a Gaussian Process DDM over 3200 time steps.
-
-![](param_recovery_animation.gif)
+- [Optimal policy](applications/optimal_policy/notebook/optimal_policy_experiment.ipynb): Fitting a non-stationary DDM to data from a random-dot motion task.
+- [Lexical decision](applications/lexical_decision/notebooks): Fitting a non-stationary DDM to long human time series data from a lexical decision task.
 
 ## Support
 
