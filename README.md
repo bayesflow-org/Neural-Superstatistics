@@ -47,7 +47,7 @@ All applications are structured as self-contained Jupyter notebooks, which are d
 
 ## Support
 
-This work was supported by the Deutsche Forschungsgemein-schaft (DFG, German Research Foundation; grant number GRK 2277 ”Statistical Modeling in Psychology”), by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany’s Excellence Strategy – EXC-2075 - 390740016 (the Stuttgart Cluster of Excellence SimTech), and by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany’s Excellence Strategy – EXC-2181 - 390900948 (the Heidelberg Cluster of Excellence STRUCTURES).
+This work was supported by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation; grant number GRK 2277 ”Statistical Modeling in Psychology”), by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany’s Excellence Strategy – EXC-2075 - 390740016 (the Stuttgart Cluster of Excellence SimTech), and by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany’s Excellence Strategy – EXC-2181 - 390900948 (the Heidelberg Cluster of Excellence STRUCTURES).
 
 ## License
 
